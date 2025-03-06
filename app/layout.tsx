@@ -5,6 +5,8 @@ import "./globals.css";
 // theme provider
 import { ThemeProvider } from "@/components/providers/theme-provider";
 
+import { SidebarProvider } from "@/components/ui/sidebar";
+
 const barlow = Barlow({
   variable: "--font-barlow",
   weight: ["100", "200", "300"],
@@ -35,14 +37,16 @@ export default function RootLayout({
       <body
         className={`${barlow.variable} ${poppins.variable} ${space.variable} antialiased`}
       >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem={false}
-          storageKey="aurora-theme"
-        >
-          {children}
-        </ThemeProvider>
+        <SidebarProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem={false}
+            storageKey="aurora-theme"
+          >
+            {children}
+          </ThemeProvider>
+        </SidebarProvider>
       </body>
     </html>
   );
