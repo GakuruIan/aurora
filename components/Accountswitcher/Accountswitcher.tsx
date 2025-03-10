@@ -64,7 +64,7 @@ const Accountswitcher = () => {
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg dark:bg-dark-100 border-0"
+            className="w-[--radix-dropdown-menu-trigger-width] min-w-56 rounded-lg dark:bg-dark-100 bg-white border-0"
             align="start"
             side={isMobile ? "bottom" : "right"}
             sideOffset={4}

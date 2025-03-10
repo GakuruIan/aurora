@@ -27,9 +27,9 @@ const Actiontooltip: React.FC<tooltipProps> = ({
         <TooltipContent
           align={align}
           side={side}
-          className="bg-gray-200 rounded-md dark:bg-dark-50"
+          className="bg-dark-50 rounded-md dark:bg-dark-50"
         >
-          <p className="text-sm dark:text-white font-barlow">{label}</p>
+          <p className="text-sm  dark:text-white font-barlow">{label}</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>

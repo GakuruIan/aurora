@@ -19,6 +19,8 @@
 
 /public
 
+/constants
+
 # production
 /build
 
