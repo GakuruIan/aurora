@@ -69,6 +69,28 @@ export function DataTable<TData, TValue>({
     },
   });
 
+  const handleColumnFilter = (
+    value: boolean,
+    importance: string,
+    columnID: string
+  ) => {
+    const column = table.getColumn(columnID);
+
+    if (value && column && column.getCanFilter()) {
+      table.getColumn(columnID)?.setFilterValue(importance);
+    } else {
+      table.getColumn(columnID)?.setFilterValue(undefined);
+    }
+  };
+
+  const ResetColumnFilter = (columnID: string) => {
+    const column = table.getColumn(columnID);
+
+    if (column && column.getCanFilter()) {
+      column.setFilterValue(undefined);
+    }
+  };
+
   return (
     <>
       <div className="pb-2">
@@ -95,30 +117,51 @@ export function DataTable<TData, TValue>({
               <DropdownMenuContent className="w-56">
                 <DropdownMenuLabel>Importance</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                {/* <DropdownMenuCheckboxItem
-                  checked={true}
-                  onCheckedChange={setShowStatusBar}
+                <DropdownMenuCheckboxItem
+                  checked={
+                    table.getColumn("importance")?.getFilterValue() === "all"
+                  }
+                  onCheckedChange={() => ResetColumnFilter("importance")}
+                >
+                  All
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem
+                  checked={
+                    table.getColumn("importance")?.getFilterValue() === "low"
+                  }
+                  onCheckedChange={(checked) =>
+                    handleColumnFilter(checked, "low", "importance")
+                  }
                 >
                   Low
                 </DropdownMenuCheckboxItem>
+
                 <DropdownMenuCheckboxItem
-                  checked={showActivityBar}
-                  onCheckedChange={setShowActivityBar}
-                  disabled
+                  checked={
+                    table.getColumn("importance")?.getFilterValue() === "medium"
+                  }
+                  onCheckedChange={(checked) =>
+                    handleColumnFilter(checked, "medium", "importance")
+                  }
                 >
                   Medium
                 </DropdownMenuCheckboxItem>
+
                 <DropdownMenuCheckboxItem
-                  checked={showPanel}
-                  onCheckedChange={setShowPanel}
+                  checked={
+                    table.getColumn("importance")?.getFilterValue() === "high"
+                  }
+                  onCheckedChange={(checked) =>
+                    handleColumnFilter(checked, "high", "importance")
+                  }
                 >
-                 High
-                </DropdownMenuCheckboxItem> */}
+                  High
+                </DropdownMenuCheckboxItem>
               </DropdownMenuContent>
             </DropdownMenu>
             {/* filter by importance */}
 
-            {/* filter by importance */}
+            {/* filter by status */}
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" className="dark:border-dark-10">
@@ -128,25 +171,47 @@ export function DataTable<TData, TValue>({
               <DropdownMenuContent className="w-56">
                 <DropdownMenuLabel>Status</DropdownMenuLabel>
                 <DropdownMenuSeparator />
-                {/* <DropdownMenuCheckboxItem
-                  checked={true}
-                  onCheckedChange={setShowStatusBar}
+                <DropdownMenuCheckboxItem
+                  checked={
+                    table.getColumn("status")?.getFilterValue() === "all"
+                  }
+                  onCheckedChange={() => ResetColumnFilter("status")}
                 >
-                  Low
+                  All
+                </DropdownMenuCheckboxItem>
+
+                <DropdownMenuCheckboxItem
+                  checked={
+                    table.getColumn("status")?.getFilterValue() === "To Do"
+                  }
+                  onCheckedChange={(checked) =>
+                    handleColumnFilter(checked, "To Do", "status")
+                  }
+                >
+                  To do
+                </DropdownMenuCheckboxItem>
+
+                <DropdownMenuCheckboxItem
+                  checked={
+                    table.getColumn("status")?.getFilterValue() ===
+                    "in progress"
+                  }
+                  onCheckedChange={(checked) =>
+                    handleColumnFilter(checked, "in progress", "status")
+                  }
+                >
+                  In Progress
                 </DropdownMenuCheckboxItem>
                 <DropdownMenuCheckboxItem
-                  checked={showActivityBar}
-                  onCheckedChange={setShowActivityBar}
-                  disabled
+                  checked={
+                    table.getColumn("status")?.getFilterValue() === "done"
+                  }
+                  onCheckedChange={(checked) =>
+                    handleColumnFilter(checked, "done", "status")
+                  }
                 >
-                  Medium
+                  Done
                 </DropdownMenuCheckboxItem>
-                <DropdownMenuCheckboxItem
-                  checked={showPanel}
-                  onCheckedChange={setShowPanel}
-                >
-                 High
-                </DropdownMenuCheckboxItem> */}
               </DropdownMenuContent>
             </DropdownMenu>
             {/* filter by importance */}

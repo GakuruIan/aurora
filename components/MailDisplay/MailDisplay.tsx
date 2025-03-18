@@ -1,12 +1,13 @@
 import React from "react";
-import { ScrollArea } from "../ui/scroll-area";
-import { Avatar, AvatarFallback } from "../ui/avatar";
 
 // components
+import { ScrollArea } from "../ui/scroll-area";
+import Replybox from "../ReplyBox/Replybox";
+import { Avatar, AvatarFallback } from "../ui/avatar";
 
 const MailDisplay = () => {
   return (
-    <div className="relative px-2 py-4">
+    <div className="flex flex-col h-[calc(100vh-10rem)] px-1 md:px-2 py-4 w-full">
       <header className="flex items-center justify-between w-full">
         <div className="flex items-center gap-x-2 mb-4 ">
           <Avatar>
@@ -23,7 +24,7 @@ const MailDisplay = () => {
         <p className="text-sm dark:text-gray-500 text-gray-400">15 sep 2024</p>
         {/* timestamp */}
       </header>
-      <ScrollArea>
+      <ScrollArea className=" flex-1 overflow-y-auto">
         <p className="text-sm ">
           Lorem ipsum dolor sit, amet consectetur adipisicing elit. Dignissimos
           impedit vitae est voluptas laboriosam fuga porro, odit sed commodi
@@ -32,6 +33,10 @@ const MailDisplay = () => {
           consequuntur aliquid sunt distinctio omnis.
         </p>
       </ScrollArea>
+
+      <div className="mt-auto">
+        <Replybox />
+      </div>
     </div>
   );
 };

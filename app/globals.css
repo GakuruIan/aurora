@@ -7,6 +7,15 @@ body{
 }
 
 
+.tiptap.ProseMirror{
+  outline: none;
+}
+
+.is-active{
+  background-color: #4D62C1;
+  border-radius: 4px;
+  padding: 0px 2px;
+}
 
 @layer base {
   :root {

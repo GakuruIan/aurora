@@ -54,7 +54,7 @@ const Page = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
             </div>
             <SidebarInput placeholder="Type to search..." />
           </SidebarHeader>
-          <ScrollArea className="h-[calc(100vh-4rem)]">
+          <ScrollArea className="h-[calc(100vh-12.8rem)]">
             <SidebarContent>
               <SidebarGroup className="px-0">
                 <SidebarGroupContent>
@@ -82,7 +82,7 @@ const Page = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
         </Sidebar>
 
         {/* email content */}
-        <div className="flex-1 border-l border-border">
+        <div className="flex-1  md:border-l border-border">
           {/* <Separator orientation="horizontal" className="mr-2 h-4" /> */}
           <header className="sticky top-10 z-10 dark:bg-dark-300 flex shrink-0 items-center justify-between gap-2 border-b bg-background p-4">
             {/* <SidebarTrigger className="-ml-1" /> */}

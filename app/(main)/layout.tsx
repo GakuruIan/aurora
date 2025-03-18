@@ -5,6 +5,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 
 import Appsiderbar from "@/components/Appsidebar/App-sidebar";
 import Topbar from "@/components/Topbar/Topbar";
+import AiButton from "@/components/FabButton/AiButton";
 
 const layout = ({ children }: { children: React.ReactNode }) => {
   return (
@@ -14,6 +15,8 @@ const layout = ({ children }: { children: React.ReactNode }) => {
       <SidebarInset>
         <Topbar />
         <main className="flex flex-1 flex-col gap-4 p-4 pt-4">{children}</main>
+
+        <AiButton />
       </SidebarInset>
     </SidebarProvider>
   );
