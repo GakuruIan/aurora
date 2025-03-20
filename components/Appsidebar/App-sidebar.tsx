@@ -1,6 +1,10 @@
 "use client";
 import React from "react";
 
+// clerk
+import { UserButton } from "@clerk/nextjs";
+
+// components
 import {
   Sidebar,
   SidebarContent,
@@ -21,6 +25,7 @@ import Accountswitcher from "../Accountswitcher/Accountswitcher";
 import { Navlinks } from "@/constants/navlinks";
 
 import Link from "next/link";
+
 import UserAccount from "../UserAccount/UserAccount";
 
 const Appsiderbar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
@@ -93,7 +98,8 @@ const Appsiderbar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
       </SidebarContent>
 
       <SidebarFooter>
-        <UserAccount />
+        {/* <UserAccount /> */}
+        <UserButton />
       </SidebarFooter>
 
       <SidebarRail />

@@ -3,6 +3,11 @@ import React from "react";
 // icons
 import { MoreHorizontal, Mail, MonitorSmartphone } from "lucide-react";
 
+// form
+import * as z from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+
 // components
 import { Separator } from "@/components/ui/separator";
 import { Label } from "@/components/ui/label";
@@ -27,14 +32,48 @@ import {
 
 import { Button } from "@/components/ui/button";
 
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+
 // image
 import Image from "next/image";
 
 // image dummy
 import pic from "@/public/astronaut.jpg";
+
+// icons
 import { Plus } from "lucide-react";
 
+const formSchema = z.object({
+  username: z
+    .string()
+    .min(3, "Username must be at least 3 characters long.")
+    .max(20, "username cannot be more than 20 characters")
+    .regex(
+      /^[a-zA-Z][a-zA-Z0-9_]*$/,
+      "Username must start with a letter and contain only letters, numbers, and underscores."
+    ),
+  email: z
+    .string()
+    .min(1, "Email is required")
+    .email("Invalid email, Please enter a valid Email"),
+});
+
 const Page = () => {
+  const form = useForm({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      username: "",
+      email: "",
+    },
+  });
+
   return (
     <div>
       <form action="">
@@ -65,7 +104,7 @@ const Page = () => {
             <div className="mb-4">
               <Label className="mb-2">Username</Label>
 
-              <Input className="mt-2" />
+              <Input className="mt-2" placeholder="dev one" />
             </div>
           </div>
         </div>
@@ -110,11 +149,16 @@ const Page = () => {
             <div className="">
               <Label className="mb-2">Email address</Label>
 
-              <Input className="mt-2" />
+              <Input className="mt-2" placeholder="john@gmail.com" />
+
+              <Button className="mt-2">Submit</Button>
 
               <div className="mt-4">
                 <Separator />
-                <button className="text-sm flex items-center gap-x-2 mt-2">
+                <button
+                  type="button"
+                  className="text-sm flex items-center gap-x-2 mt-2"
+                >
                   <Plus size={16} />
                   Add Email
                 </button>
