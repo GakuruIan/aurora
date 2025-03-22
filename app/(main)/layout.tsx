@@ -1,4 +1,5 @@
-import React from "react";
+"use client";
+import React, { useEffect } from "react";
 
 // components
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
@@ -7,7 +8,19 @@ import Appsiderbar from "@/components/Appsidebar/App-sidebar";
 import Topbar from "@/components/Topbar/Topbar";
 import AiButton from "@/components/FabButton/AiButton";
 
-const layout = ({ children }: { children: React.ReactNode }) => {
+// clerk auth
+import { useAuth } from "@clerk/nextjs";
+import { redirect } from "next/navigation";
+
+const Layout = ({ children }: { children: React.ReactNode }) => {
+  const { userId, isLoaded } = useAuth();
+
+  useEffect(() => {
+    if (!userId && isLoaded) {
+      redirect("/login");
+    }
+  }, []);
+
   return (
     <SidebarProvider>
       <Appsiderbar />
@@ -22,4 +35,4 @@ const layout = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export default layout;
+export default Layout;

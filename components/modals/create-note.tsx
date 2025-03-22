@@ -9,6 +9,8 @@ import { useForm } from "react-hook-form";
 import { useModal } from "@/hooks/use-modal-store";
 
 // components
+import { Input } from "../ui/input";
+
 import {
   Dialog,
   DialogTitle,
@@ -32,12 +34,25 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 import Button from "../Button/Button";
 
+// react query
+import { useQuery } from "@tanstack/react-query";
+
+// axios
+import axios from "axios";
+
+// interface
+import { CategoryResponse } from "@/interfaces";
+import { toast } from "sonner";
+
 const formSchema = z.object({
-  note: z.string().min(5, {
-    message: "Username must be at least 5 characters.",
+  title: z.string().min(1, {
+    message: "Note title is required",
   }),
-  category: z.enum(["personal", "work", "other"], {
-    required_error: "You need to select a category type.",
+  content: z.string().min(5, {
+    message: "Note must be at least 5 characters.",
+  }),
+  categoryId: z.string().min(5, {
+    message: "Select a category for your note",
   }),
 });
 
@@ -46,15 +61,48 @@ const CreateNote = () => {
 
   const isModalOpen = isOpen && type === "CreateNote";
 
+  const {
+    data: categories,
+    isLoading: loadingCategories,
+    error: CategoryError,
+  } = useQuery({
+    queryKey: ["categories"],
+    queryFn: () =>
+      axios
+        .get<CategoryResponse[]>("/api/noteCategory")
+        .then((res) => res.data),
+  });
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      note: "",
+      content: "",
+      title: "",
+      categoryId: "",
     },
   });
 
+  const isLoading = form.formState.isSubmitting;
+
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log(values);
+    await axios
+      .post("/api/notes", values)
+      .then((res) => {
+        if (res.status === 201) {
+          toast.success("Note creation", {
+            description: "Note added successfully",
+          });
+          form.reset();
+          onClose();
+        }
+      })
+      .catch((err) => {
+        toast.error("Error", {
+          description: "An error occurred ",
+        });
+
+        console.log(err);
+      });
   };
 
   const handleOnClose = () => {
@@ -77,10 +125,32 @@ const CreateNote = () => {
 
         <Form {...form}>
           <form className="" onSubmit={form.handleSubmit(onSubmit)}>
+            <div className="mb-2">
+              <FormField
+                control={form.control}
+                name="title"
+                render={({ field, fieldState }) => (
+                  <FormItem className="w-full mb-4">
+                    <FormLabel htmlFor="note">Note title</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="text"
+                        placeholder="note title"
+                        disabled={isLoading}
+                        className="w-full outline-0 bg-light-200 dark:bg-dark-50 dark:text-white  placeholder:text-sm dark:border-0 rounded-sm placeholder:dark:text-gray-400"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage>{fieldState.error?.message}</FormMessage>
+                  </FormItem>
+                )}
+              />
+            </div>
+
             <div className="">
               <FormField
                 control={form.control}
-                name="note"
+                name="content"
                 render={({ field, fieldState }) => (
                   <FormItem className="w-full mb-4">
                     <FormLabel htmlFor="note">Your Note</FormLabel>
@@ -100,7 +170,7 @@ const CreateNote = () => {
 
               <FormField
                 control={form.control}
-                name="category"
+                name="categoryId"
                 render={({ field, fieldState }) => (
                   <FormItem className="w-full mb-4">
                     <FormLabel htmlFor="note">Note Category</FormLabel>
@@ -110,26 +180,19 @@ const CreateNote = () => {
                         defaultValue={field.value}
                         className="flex  space-x-1"
                       >
-                        <FormItem className="flex items-center space-x-3 space-y-0">
-                          <FormControl>
-                            <RadioGroupItem value="personal" />
-                          </FormControl>
-                          <FormLabel className="font-normal">
-                            Personal
-                          </FormLabel>
-                        </FormItem>
-                        <FormItem className="flex items-center space-x-3 space-y-0">
-                          <FormControl>
-                            <RadioGroupItem value="work" />
-                          </FormControl>
-                          <FormLabel className="font-normal">Work</FormLabel>
-                        </FormItem>
-                        <FormItem className="flex items-center space-x-3 space-y-0">
-                          <FormControl>
-                            <RadioGroupItem value="other" />
-                          </FormControl>
-                          <FormLabel className="font-normal">Other</FormLabel>
-                        </FormItem>
+                        {categories?.map((category) => (
+                          <FormItem
+                            key={category.id}
+                            className="flex items-center space-x-3 space-y-0"
+                          >
+                            <FormControl>
+                              <RadioGroupItem value={category.id} />
+                            </FormControl>
+                            <FormLabel className="font-normal">
+                              {category.name}
+                            </FormLabel>
+                          </FormItem>
+                        ))}
                       </RadioGroup>
                     </FormControl>
                     <FormMessage>{fieldState.error?.message}</FormMessage>
@@ -140,6 +203,8 @@ const CreateNote = () => {
 
             <DialogFooter>
               <Button
+                loadingText="Creating note..."
+                isLoading={isLoading}
                 type="submit"
                 label="Create note"
                 style="bg-indigo-600 hover:bg-indigo-500 text-white"

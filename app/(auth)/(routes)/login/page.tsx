@@ -13,10 +13,10 @@ import { Mail, Lock, Eye, EyeClosed } from "lucide-react";
 // routing
 import Link from "next/link";
 // router
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 
 // clerk
-import { useSignIn, useAuth } from "@clerk/nextjs";
+import { useSignIn } from "@clerk/nextjs";
 
 // components
 import Button from "@/components/Button/Button";
@@ -55,13 +55,6 @@ const Page = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   const { isLoaded, signIn, setActive } = useSignIn();
-  const { userId } = useAuth();
-
-  const router = useRouter();
-
-  if (userId) {
-    router.replace("/dashboard");
-  }
 
   //form submission
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
@@ -77,8 +70,7 @@ const Page = () => {
 
         if (signInAttempt.status === "complete") {
           await setActive({ session: signInAttempt.createdSessionId });
-
-          router.push("/dashboard");
+          redirect("/dashboard");
         } else {
           console.error("Sign-in requires further steps:", signInAttempt);
           throw new Error("Sign-in requires further verification.");

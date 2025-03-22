@@ -1,3 +1,4 @@
+"use client";
 import React from "react";
 
 import { z } from "zod";
@@ -27,18 +28,24 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
-import { Input } from "@/components/ui/input";
+import { toast } from "sonner";
 
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Input } from "@/components/ui/input";
 
 import Button from "../Button/Button";
 
+//color picker
+import { CirclePicker } from "react-color";
+
+// axios
+import axios from "axios";
+
 const formSchema = z.object({
-  category: z.string().min(5, {
+  name: z.string().min(5, {
     message: "Username must be at least 5 characters.",
   }),
-  color: z.enum(["personal", "work", "other"], {
-    required_error: "You need to select a category type.",
+  colorCode: z.string().min(1, {
+    message: "You need to select a category type.",
   }),
 });
 
@@ -50,12 +57,29 @@ const CreateNoteCategory = () => {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      category: "",
+      name: "",
+      colorCode: "",
     },
   });
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    console.log(values);
+    await axios
+      .post("/api/noteCategory", values)
+      .then((res) => {
+        if (res.status === 200) {
+          toast.success("Note Category created successfully");
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+        toast.error("Error", {
+          description: "An error has occurred. Please try again later",
+        });
+      })
+      .finally(() => {
+        form.reset();
+        onClose();
+      });
   };
 
   const handleOnClose = () => {
@@ -63,14 +87,16 @@ const CreateNoteCategory = () => {
     onClose();
   };
 
+  const isLoading = form.formState.isSubmitting;
+
   return (
     <Dialog open={isModalOpen} onOpenChange={handleOnClose}>
       <DialogContent className="dark:bg-dark-300 border-0 dark:text-white text-black bg-white overflow-hidden">
         <DialogHeader className="py-4 px-6">
-          <DialogTitle className="text-center font-poppins tracking-wide mb-1 dark:text-white text-gray-600">
+          <DialogTitle className="text-center font-poppins font-medium tracking-wide mb-1 dark:text-white text-gray-600">
             Create note category
           </DialogTitle>
-          <DialogDescription className="text-center font-saira text-base dark:text-gray-400 text-gray-500">
+          <DialogDescription className="text-center font-barlow text-sm dark:text-gray-400 text-gray-500">
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Laborum,
             aliquid?
           </DialogDescription>
@@ -81,7 +107,7 @@ const CreateNoteCategory = () => {
             <div className="">
               <FormField
                 control={form.control}
-                name="category"
+                name="name"
                 render={({ field, fieldState }) => (
                   <FormItem className="w-full mb-4">
                     <FormLabel htmlFor="note">Category</FormLabel>
@@ -100,37 +126,32 @@ const CreateNoteCategory = () => {
 
               <FormField
                 control={form.control}
-                name="color"
+                name="colorCode"
                 render={({ field, fieldState }) => (
-                  <FormItem className="w-full mb-4">
-                    <FormLabel htmlFor="note">Note Category</FormLabel>
+                  <FormItem className="w-full mb-6">
+                    <FormLabel htmlFor="note">
+                      Select a theme for your category
+                    </FormLabel>
                     <FormControl>
-                      <RadioGroup
-                        onValueChange={field.onChange}
-                        defaultValue={field.value}
-                        className="flex  space-x-1"
-                      >
-                        <FormItem className="flex items-center space-x-3 space-y-0">
-                          <FormControl>
-                            <RadioGroupItem value="personal" />
-                          </FormControl>
-                          <FormLabel className="font-normal">
-                            Personal
-                          </FormLabel>
-                        </FormItem>
-                        <FormItem className="flex items-center space-x-3 space-y-0">
-                          <FormControl>
-                            <RadioGroupItem value="work" />
-                          </FormControl>
-                          <FormLabel className="font-normal">Work</FormLabel>
-                        </FormItem>
-                        <FormItem className="flex items-center space-x-3 space-y-0">
-                          <FormControl>
-                            <RadioGroupItem value="other" />
-                          </FormControl>
-                          <FormLabel className="font-normal">Other</FormLabel>
-                        </FormItem>
-                      </RadioGroup>
+                      <div className="flex flex-col space-y-2">
+                        <CirclePicker
+                          circleSize={18}
+                          circleSpacing={10}
+                          color={field.value}
+                          onChangeComplete={(color) =>
+                            field.onChange(color.hex)
+                          }
+                        />
+
+                        <Input
+                          className="resize-none placeholder:text-sm placeholder:dark:text-gray-400 placeholder:text-gray-400 bg-light-200 tracking-wider font-saira dark:bg-dark-50 dark:text-white  border-0 focus-visible:ring-0 focus-visible:ring-offset-0 mt-2 font-barlow"
+                          id="note"
+                          {...field}
+                          value={field.value}
+                          readOnly
+                          placeholder="Selected color code appears here"
+                        />
+                      </div>
                     </FormControl>
                     <FormMessage>{fieldState.error?.message}</FormMessage>
                   </FormItem>
@@ -140,6 +161,8 @@ const CreateNoteCategory = () => {
 
             <DialogFooter>
               <Button
+                isLoading={isLoading}
+                loadingText="Submitting..."
                 type="submit"
                 label="Create note"
                 style="bg-indigo-600 hover:bg-indigo-500 text-white"

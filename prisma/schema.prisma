@@ -1,0 +1,46 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String         @id @unique @default(uuid())
+  clerkId    String         @unique
+  email      String         @unique
+  username   String         @unique
+  avatar     String
+  verified   Boolean        @default(false)
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+  notes      Note[]
+  categories NoteCategory[]
+}
+
+model Note {
+  id         String       @id @unique @default(uuid())
+  title      String       @unique
+  content    String
+  categoryId String
+  ownerId    String
+  owner      User         @relation(fields: [ownerId], references: [id])
+  category   NoteCategory @relation(fields: [categoryId], references: [id])
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+}
+
+model NoteCategory {
+  id        String   @id @unique @default(uuid())
+  name      String
+  colorCode String
+  ownerId   String
+  owner     User     @relation(fields: [ownerId], references: [id])
+  notes     Note[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([name, ownerId])
+}

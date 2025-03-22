@@ -6,15 +6,12 @@ import React, { useState } from "react";
 import { Mail, Lock, Eye, EyeClosed, User } from "lucide-react";
 
 // clerk
-import { useSignUp, useAuth } from "@clerk/nextjs";
+import { useSignUp } from "@clerk/nextjs";
 
 // form
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-
-// router
-import { useRouter } from "next/navigation";
 
 // components
 import Button from "@/components/Button/Button";
@@ -68,12 +65,6 @@ const Page = () => {
   const [showPassword, setShowPassword] = useState(false);
 
   const [verifying, setVerifying] = useState(false);
-
-  const router = useRouter();
-
-  const { userId } = useAuth();
-
-  if (userId) router.push("/");
 
   //form submission
 

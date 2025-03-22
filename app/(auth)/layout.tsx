@@ -1,10 +1,22 @@
-import React from "react";
+"use client";
+import React, { useEffect } from "react";
 import Image from "next/image";
 
 // background image
 import logo from "@/public/colorful-logo.png";
 
-const layout = ({ children }: { children: React.ReactNode }) => {
+import { useAuth } from "@clerk/nextjs";
+import { redirect } from "next/navigation";
+
+const Layout = ({ children }: { children: React.ReactNode }) => {
+  const { userId, isLoaded } = useAuth();
+
+  useEffect(() => {
+    if (userId && isLoaded) {
+      return redirect("/dashboard");
+    }
+  }, []);
+
   return (
     <div className="min-h-screen w-full flex items-center  justify-center ">
       <div className="flex px-4 md:px-0  flex-col gap-y-4 w-full md:w-96 ">
@@ -24,4 +36,4 @@ const layout = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-export default layout;
+export default Layout;

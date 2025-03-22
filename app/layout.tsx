@@ -15,6 +15,9 @@ import ChatSheet from "@/components/QuickSheet/QuickSheet";
 // toaster
 import { Toaster } from "@/components/ui/sonner";
 
+// react query
+import { ReactQueryClientProvider } from "@/components/providers/ReactQueryProvider";
+
 const barlow = Barlow({
   variable: "--font-barlow",
   weight: ["100", "200", "300"],
@@ -42,23 +45,25 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider afterSignOutUrl={"/login"}>
-      <html lang="en">
-        <body
-          className={`${barlow.variable} ${poppins.variable} ${space.variable} antialiased`}
-        >
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem={false}
-            storageKey="aurora-theme"
+      <ReactQueryClientProvider>
+        <html lang="en">
+          <body
+            className={`${barlow.variable} ${poppins.variable} ${space.variable} antialiased`}
           >
-            <Toaster richColors={true} />
-            <ModalProvider />
-            <ChatSheet />
-            {children}
-          </ThemeProvider>
-        </body>
-      </html>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem={false}
+              storageKey="aurora-theme"
+            >
+              <Toaster richColors={true} />
+              <ModalProvider />
+              <ChatSheet />
+              {children}
+            </ThemeProvider>
+          </body>
+        </html>
+      </ReactQueryClientProvider>
     </ClerkProvider>
   );
 }
