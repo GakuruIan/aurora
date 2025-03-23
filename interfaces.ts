@@ -21,6 +21,7 @@ export interface Note {
   id: string;
   title: string;
   content: string;
+  categoryId: string;
   category: CategoryResponse;
   ownerId: string;
   createdAt: string; // ISO date string

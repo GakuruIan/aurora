@@ -17,14 +17,11 @@ import { useModal } from "@/hooks/use-modal-store";
 // axios
 import axios from "axios";
 
-// inteface
-import { Note } from "@/interfaces";
-
 // react query
 import { useQuery } from "@tanstack/react-query";
 
 // interface
-import { CategoryResponse } from "@/interfaces";
+import { CategoryResponse, Note } from "@/interfaces";
 
 const Page = () => {
   const { onOpen } = useModal();
@@ -51,8 +48,6 @@ const Page = () => {
     queryKey: ["Notes"],
     queryFn: () => axios.get<Note[]>("/api/notes").then((res) => res.data),
   });
-
-  console.log(Notes);
 
   return (
     <div>
@@ -152,16 +147,11 @@ const Page = () => {
         <>
           {(Notes ?? []).length > 0 ? (
             <>
-              {Notes?.map((note) => (
-                <NoteCard
-                  title={note.title}
-                  key={note.id}
-                  content={note.content}
-                  date={note.createdAt}
-                  color={note.category.colorCode}
-                  pinned={true}
-                />
-              ))}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                {Notes?.map((note) => (
+                  <NoteCard key={note.id} note={note} />
+                ))}
+              </div>
             </>
           ) : (
             // if no notes are found

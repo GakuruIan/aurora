@@ -8,16 +8,26 @@ datasource db {
 }
 
 model User {
-  id         String         @id @unique @default(uuid())
-  clerkId    String         @unique
-  email      String         @unique
-  username   String         @unique
-  avatar     String
-  verified   Boolean        @default(false)
-  createdAt  DateTime       @default(now())
-  updatedAt  DateTime       @updatedAt
-  notes      Note[]
-  categories NoteCategory[]
+  id             String          @id @unique @default(uuid())
+  clerkId        String          @unique
+  email          String          @unique
+  username       String          @unique
+  avatar         String
+  verified       Boolean         @default(false)
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  notes          Note[]
+  categories     NoteCategory[]
+  linkedAccounts LinkedAccount[]
+}
+
+model LinkedAccount {
+  id          String @id @unique @default(uuid())
+  ownerId     String
+  accessToken String @unique
+  email       String
+  name        String
+  owner       User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
 }
 
 model Note {
@@ -26,8 +36,8 @@ model Note {
   content    String
   categoryId String
   ownerId    String
-  owner      User         @relation(fields: [ownerId], references: [id])
-  category   NoteCategory @relation(fields: [categoryId], references: [id])
+  owner      User         @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  category   NoteCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
   createdAt  DateTime     @default(now())
   updatedAt  DateTime     @updatedAt
 }
@@ -37,7 +47,7 @@ model NoteCategory {
   name      String
   colorCode String
   ownerId   String
-  owner     User     @relation(fields: [ownerId], references: [id])
+  owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   notes     Note[]
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

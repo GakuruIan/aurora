@@ -8,16 +8,24 @@ export type ModalType =
   | "EditCategory"
   | "DeleteCategory";
 
+import { NotesWithCategory } from "@/types";
+
+interface ModalData {
+  note?: NotesWithCategory;
+}
+
 interface ModalStore {
   type: ModalType | null;
   isOpen: boolean;
-  onOpen: (type: ModalType) => void;
+  data: ModalData;
+  onOpen: (type: ModalType, data?: ModalData) => void;
   onClose: () => void;
 }
 
 export const useModal = create<ModalStore>((set) => ({
   type: null,
   isOpen: false,
-  onOpen: (type) => set({ type, isOpen: true }),
+  data: {},
+  onOpen: (type, data = {}) => set({ type, isOpen: true, data }),
   onClose: () => set({ type: null, isOpen: false }),
 }));
