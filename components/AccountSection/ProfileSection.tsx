@@ -43,10 +43,7 @@ const formSchema = z.object({
       /^[a-zA-Z][a-zA-Z0-9_]*$/,
       "Username must start with a letter and contain only letters, numbers, and underscores."
     ),
-  email: z
-    .string()
-    .min(1, "Email is required")
-    .email("Invalid email, Please enter a valid Email"),
+
   imageUrl: z
     .any()
     .optional()
@@ -71,18 +68,16 @@ const ProfileSection: React.FC<props> = ({ user }) => {
     defaultValues: {
       imageUrl: null,
       username: "",
-      email: "",
     },
   });
 
   // Watch the file
   const imageFile = form.watch("imageUrl");
-  const formWatch = form.watch(["username", "email"]);
+  const formWatch = form.watch(["username"]);
 
   useEffect(() => {
     if (username && emailAddresses[0].emailAddress) {
       form.setValue("username", username);
-      form.setValue("email", emailAddresses[0].emailAddress);
     }
   }, [form, username, emailAddresses]);
 
@@ -131,24 +126,18 @@ const ProfileSection: React.FC<props> = ({ user }) => {
 
   // form submission
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const { username, email } = values;
+    const { username } = values;
 
     return toast.promise(
       (async () => {
         try {
-          const currentEmail = user.primaryEmailAddress?.emailAddress;
-
           if (username && username !== user.username) {
             // Update username if it has changed
             await user.update({
               username,
             });
-          }
 
-          if (email && email !== currentEmail) {
-            // Update email only if it has changed
-
-            await user.createEmailAddress({ email });
+            console.log("Changed username");
           }
         } catch (error) {
           console.error("Upload error:", error);
@@ -264,47 +253,23 @@ const ProfileSection: React.FC<props> = ({ user }) => {
               />
             </div>
 
-            <div className="mb-4">
-              <FormField
-                name="email"
-                control={form.control}
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Email</FormLabel>
-                    <FormControl>
-                      <Input
-                        type="email"
-                        className="mt-2"
-                        placeholder="john@gmail.com"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            </div>
-
             {/* check if field is touched */}
-            {formWatch &&
-              (form.formState.dirtyFields.username ||
-                form.formState.dirtyFields.email) && (
-                <div className="flex items-center justify-end gap-x-2">
-                  <Button
-                    onClick={() => {
-                      form.reset();
-                      form.setValue("username", username);
-                      form.setValue("email", emailAddresses[0].emailAddress);
-                    }}
-                    variant="outline"
-                    type="button"
-                    className=""
-                  >
-                    Discard,Changes
-                  </Button>
-                  <Button type="submit">Save</Button>
-                </div>
-              )}
+            {formWatch && form.formState.dirtyFields.username && (
+              <div className="flex items-center justify-end gap-x-2">
+                <Button
+                  onClick={() => {
+                    form.resetField("username");
+                    form.setValue("username", username);
+                  }}
+                  variant="outline"
+                  type="button"
+                  className=""
+                >
+                  Discard,Changes
+                </Button>
+                <Button type="submit">Save</Button>
+              </div>
+            )}
           </div>
         </div>
       </form>

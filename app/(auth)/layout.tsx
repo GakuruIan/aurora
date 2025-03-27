@@ -15,7 +15,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     if (userId && isLoaded) {
       return redirect("/dashboard");
     }
-  }, []);
+
+    console.log("first");
+  }, [isLoaded, userId]);
 
   return (
     <div className="min-h-screen w-full flex items-center  justify-center ">

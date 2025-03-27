@@ -1,11 +1,22 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
+
+import { googleRefreshTokenMiddleware } from "@/middlewares/google_auth_middleware";
 
 const isProtectedRoute = createRouteMatcher(["/(main)(.*)", "/api/(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
+  const url = req.nextUrl.pathname;
+
+  if (url.startsWith("/api/webhooks/clerk")) {
+    return NextResponse.next();
+  }
+
   if (isProtectedRoute(req)) {
     await auth.protect();
   }
+
+  // return googleRefreshTokenMiddleware(req);
 });
 
 export const config = {
@@ -17,4 +28,5 @@ export const config = {
 
     "/(main)(.*)",
   ],
+  runtime: "nodejs",
 };

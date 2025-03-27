@@ -4,35 +4,111 @@ import React from "react";
 import { ScrollArea } from "../ui/scroll-area";
 import Replybox from "../ReplyBox/Replybox";
 import { Avatar, AvatarFallback } from "../ui/avatar";
+import { Separator } from "../ui/separator";
+
+// react query
+import { useQuery } from "@tanstack/react-query";
+
+// axios
+import axios from "axios";
+
+// router
+import { useSearchParams } from "next/navigation";
 
 const MailDisplay = () => {
+  const urlSearchParams = useSearchParams();
+
+  const threadId = urlSearchParams.get("threadId");
+
+  if (!threadId) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-10rem)] py-4 w-full">
+        <div className="flex items-center ">
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            No mail selected
+          </p>
+          <Separator orientation="vertical" className="mx-2 h-6" />
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            Your messages will appear here
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const {
+    data: emailthread,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["emailthread", threadId],
+    queryFn: () =>
+      axios.get(`/api/google/emails/${threadId}`).then((res) => res.data),
+    enabled: !!threadId,
+  });
+
   return (
     <div className="flex flex-col h-[calc(100vh-10rem)] px-1 md:px-2 py-4 w-full">
-      <header className="flex items-center justify-between w-full">
-        <div className="flex items-center gap-x-2 mb-4 ">
-          <Avatar>
-            <AvatarFallback className="rounded-lg">CN</AvatarFallback>
-          </Avatar>
-          <div className="">
-            <h2 className="text-sm tracking-wide font-poppins">Username</h2>
-            <p className="text-sm hover:dark:text-gray-300 hover:cursor-pointer transition-colors duration-75 dark:text-gray-400 text-gray-500">
-              reply to ryan@gmail.com
-            </p>
+      {isLoading ? (
+        <>
+          <div className="flex items-center justify-center my-auto py-4 w-full">
+            <div className="flex items-center ">
+              <div role="status">
+                <svg
+                  aria-hidden="true"
+                  className="w-8 h-8 text-gray-200 animate-spin dark:text-dark-10 fill-blue-600"
+                  viewBox="0 0 100 101"
+                  fill="none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+                    fill="currentColor"
+                  />
+                  <path
+                    d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+                    fill="currentFill"
+                  />
+                </svg>
+              </div>
+            </div>
           </div>
+        </>
+      ) : (
+        <div className="">
+          <header className="flex items-center justify-between w-full">
+            <div className="flex items-center gap-x-2 mb-4 ">
+              <Avatar>
+                <AvatarFallback className="rounded-lg">A</AvatarFallback>
+              </Avatar>
+              <div className="">
+                <h2 className="text-sm tracking-wide font-poppins">
+                  {emailthread?.sender?.name}
+                </h2>
+                <p className="text-sm hover:dark:text-gray-300 hover:cursor-pointer transition-colors duration-75 dark:text-gray-400 text-gray-500">
+                  reply to {emailthread?.sender?.email}
+                </p>
+              </div>
+            </div>
+            {/* timestamp */}
+            <p className="text-sm dark:text-gray-500 text-gray-400">
+              15 sep 2024
+            </p>
+            {/* timestamp */}
+          </header>
+          <ScrollArea className=" flex-1 h-80">
+            {emailthread?.messages?.map((message) => (
+              <div
+                className="md:px-2 w-full  max-w-[22rem] md:max-w-[32rem]"
+                key={message.id}
+              >
+                <h2 className="font-medium mb-2">{message?.subject}</h2>
+                <p className="text-sm w-full">{message?.content}</p>
+              </div>
+            ))}
+          </ScrollArea>
         </div>
-        {/* timestamp */}
-        <p className="text-sm dark:text-gray-500 text-gray-400">15 sep 2024</p>
-        {/* timestamp */}
-      </header>
-      <ScrollArea className=" flex-1 overflow-y-auto">
-        <p className="text-sm ">
-          Lorem ipsum dolor sit, amet consectetur adipisicing elit. Dignissimos
-          impedit vitae est voluptas laboriosam fuga porro, odit sed commodi
-          illo suscipit molestiae voluptatibus quod dolorem debitis eligendi.
-          Debitis, distinctio soluta! Perspiciatis odio, nobis quo debitis
-          consequuntur aliquid sunt distinctio omnis.
-        </p>
-      </ScrollArea>
+      )}
 
       <div className="mt-auto">
         <Replybox />

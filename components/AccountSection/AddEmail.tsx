@@ -49,7 +49,7 @@ const AddEmail: React.FC<props> = ({ user }) => {
       (async () => {
         try {
           if (email) {
-            // Update email only if it has changed
+            // TODO: Add verification for added email
             await user.createEmailAddress({ email });
           }
         } catch (error) {

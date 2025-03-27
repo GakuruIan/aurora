@@ -1,12 +1,23 @@
+"use client";
 import React from "react";
 
 // components
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@/components/ui/card";
 
-// logo
-import pic from "@/public/bird-logo.png";
 import Image from "next/image";
-import { Switch } from "@/components/ui/switch";
+
+// brand images
+import google from "@/public/google.png";
+import office from "@/public/office.png";
 
 const Page = () => {
   return (
@@ -22,30 +33,56 @@ const Page = () => {
       </header>
       <Separator />
 
-      <div className="mt-2 grid grid-cols-2 md:grid-cols-3">
-        <div className="border dark:border-dark-50 p-4 rounded-md">
-          <div className="flex items-center justify-between mb-1">
-            <h4 className="text-sm font-semibold">Integration One</h4>
-            <div className="flex items-center px-2 py-0.5 border rounded-full">
-              <span className="text-sm text-custom-personal">Connected</span>
+      <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-2">
+        <Card>
+          <CardHeader>
+            <CardTitle>Google</CardTitle>
+            <CardDescription>
+              Enhance productivity with Google integration.
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent>
+            <div className="mb-2">
+              <Image src={google} alt="brand logo" className="size-10" />
             </div>
-          </div>
-
-          <div className="py-2 my-2">
-            <Image src={pic} alt="brand logo" className="size-10" />
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-              Lorem ipsum dolor sit, amet consectetur adipisicing elit. A
-              voluptatem laborum omnis cupiditate quidem labore aut esse
-              deserunt nulla facilis.
+            <p className="text-sm text-gray-500 dark:text-gray-300">
+              Set up your Google integration today! Effortlessly link your
+              account to keep all your files, tasks, and schedules synced across
+              platforms
             </p>
-          </div>
+          </CardContent>
 
-          <Separator />
+          <CardFooter>
+            <Button variant="link">
+              <a href="/api/auth">Link account</a>
+            </Button>
+          </CardFooter>
+        </Card>
 
-          <div className="flex items-center justify-end mt-2 ">
-            <Switch />
-          </div>
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Office 365</CardTitle>
+            <CardDescription>
+              Enhance productivity with office integration.
+            </CardDescription>
+          </CardHeader>
+
+          <CardContent>
+            <div className="mb-2">
+              <Image src={office} alt="brand logo" className="size-10" />
+            </div>
+            <p className="text-sm text-gray-500 dark:text-gray-300">
+              Set up your Office365 integration today! Effortlessly link your
+              account to keep all your files, tasks, and schedules synced across
+              platforms
+            </p>
+          </CardContent>
+
+          <CardFooter>
+            <Button>Link account</Button>
+          </CardFooter>
+        </Card>
       </div>
     </div>
   );

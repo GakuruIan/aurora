@@ -19,7 +19,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
     if (!userId && isLoaded) {
       redirect("/login");
     }
-  }, []);
+  }, [userId, isLoaded]);
 
   return (
     <SidebarProvider>

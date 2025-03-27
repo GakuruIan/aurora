@@ -33,12 +33,21 @@ export async function POST(req: Request) {
     }
 
     // Get body
-    const payload = await req.json();
+    const rawBody = await req.text();
+
+    // Parse the body
+    const payload = rawBody ? JSON.parse(rawBody) : null;
+
+    if (!payload) {
+      console.error("No payload received");
+      return new Response("No payload", { status: 400 });
+    }
+
     const body = JSON.stringify(payload);
 
     let evt: WebhookEvent;
 
-    // Verify payload with headers
+    // // Verify payload with headers
     try {
       evt = wh.verify(body, {
         "svix-id": svix_id,
@@ -52,22 +61,86 @@ export async function POST(req: Request) {
       });
     }
 
-    if (evt.type === "user.created") {
-      const { username, id, email_addresses, image_url } = payload.data;
+    switch (evt.type) {
+      case "user.created": {
+        try {
+          const { username, id, email_addresses, image_url } = payload.data;
 
-      const newUser = await db.user.create({
-        data: {
-          username: username,
-          clerkId: id,
-          email: email_addresses[0].email_address,
-          avatar: image_url,
-          verified: true,
-        },
-      });
+          if (!email_addresses?.length) {
+            console.error("No email addresses found for user:", id);
+            throw new Error("No email addresses found for user");
+          }
 
-      await CreateUserCategories(newUser.id);
+          const email = email_addresses[0]?.email_address;
 
-      console.log("New user created in the database!");
+          const existingUser = await db.user.findUnique({
+            where: { email },
+          });
+
+          if (existingUser) {
+            console.log(
+              `User with email ${email} already exists. Skipping creation.`
+            );
+            return new Response("User already exists", { status: 200 });
+          }
+
+          const newUser = await db.user.create({
+            data: {
+              username: username as string,
+              clerkId: id,
+              email,
+              avatar: image_url,
+              verified: true,
+            },
+          });
+
+          // // Create default categories for the new user
+          await CreateUserCategories(newUser.id);
+
+          return new Response("Webhook processed successfully", {
+            status: 200,
+          });
+        } catch (error) {
+          console.log(`[inner error] ${error}`);
+        }
+
+        break;
+      }
+
+      case "user.updated": {
+        const { username, id, email_addresses, image_url } = evt.data;
+        if (!email_addresses?.length) {
+          console.error("No email addresses found for user:", id);
+          throw new Error("No email addresses found for user");
+        }
+        const email = email_addresses[0]?.email_address;
+        // Update the user
+        await db.user.update({
+          where: { clerkId: id },
+          data: {
+            username: username as string,
+            email,
+            avatar: image_url,
+          },
+        });
+        break;
+      }
+
+      case "user.deleted": {
+        const { id } = evt.data;
+
+        console.log(evt.data);
+
+        await db.user.delete({
+          where: { clerkId: id },
+        });
+
+        break;
+      }
+
+      default:
+        console.warn(`Unhandled event type: ${evt.type}`);
+        break;
     }
 
     return new Response("Webhook received", { status: 200 });

@@ -19,6 +19,25 @@ model User {
   notes          Note[]
   categories     NoteCategory[]
   linkedAccounts LinkedAccount[]
+  oauthTokens    OAuthToken[]
+}
+
+model OAuthToken {
+  id           String    @id @unique @default(uuid())
+  ownerId      String    @unique
+  googleEmail  String
+  googleId     String    @unique
+  owner        User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  accessToken  String
+  refreshToken String?
+  scope        String?
+  tokenType    String
+  expiryDate   DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@unique([ownerId, googleEmail])
+  @@index([ownerId])
 }
 
 model LinkedAccount {
