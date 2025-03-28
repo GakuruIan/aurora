@@ -11,7 +11,7 @@ export type ThreadMessage = {
   snippet: string;
   historyId: string;
   internalDate: string;
-  payload: Payload;
+  payload?: Payload;
   sizeEstimate: number;
   raw: string;
 };
@@ -46,3 +46,58 @@ export type Payload = {
     }>;
   }>;
 };
+
+export type TasksList = {
+  kind: string;
+  id: string;
+  etag: string;
+  title: string;
+  updated: string;
+  selfLink: string;
+  tasks: Task[];
+};
+
+export type Task = {
+  kind: string;
+  id: string;
+  etag: string;
+  title: string;
+  updated: string;
+  selfLink: string;
+  parent?: string;
+  position: string;
+  notes: string;
+  status: string;
+  due: string;
+  completed: string;
+  deleted?: boolean;
+  hidden?: boolean;
+  links?: [
+    {
+      type: string;
+      description: string;
+      link: string;
+    }
+  ];
+  webViewLink?: string;
+  assignmentInfo?: AssignmentInfo;
+};
+
+export type AssignmentInfo = {
+  linkToTask: string;
+  surfaceType: ContextType;
+  driveResourceInfo: {
+    driveFileId: string;
+    resourceKey: string;
+  };
+  spaceInfo: {
+    space: string;
+  };
+};
+
+enum ContextType {
+  CONTEXT_TYPE_UNSPECIFIED,
+  GMAIL,
+  DOCUMENT,
+  SPACE,
+}

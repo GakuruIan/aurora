@@ -1,5 +1,6 @@
-export function convertTimestamp(timestamp: Date): string {
-  const createdAt = new Date(timestamp);
+export function convertTimestamp(timestamp: Date | string): string {
+  const createdAt =
+    typeof timestamp === "string" ? new Date(timestamp) : timestamp;
   const now = new Date();
 
   const diffinsec = Math.floor((now.getTime() - createdAt.getTime()) / 1000);
@@ -37,4 +38,14 @@ export function TruncateText(content: string, wordCount = 35): string {
   return split_words.length > wordCount
     ? split_words.splice(0, wordCount).join(" ") + "..."
     : content;
+}
+
+export function getFullDateFromTimestamp(timestamp: Date | string): string {
+  const date = typeof timestamp === "string" ? new Date(timestamp) : timestamp;
+
+  return new Intl.DateTimeFormat("en-US", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  }).format(date);
 }
