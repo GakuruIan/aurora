@@ -20,6 +20,25 @@ const MailDisplay = () => {
 
   const threadId = urlSearchParams.get("threadId");
 
+  const {
+    data: emailthread,
+    isLoading,
+    isError,
+  } = useQuery({
+    queryKey: ["emailthread", threadId],
+    queryFn: () =>
+      axios.get(`/api/google/emails/${threadId}`).then((res) => res.data),
+    enabled: !!threadId,
+  });
+
+  if (isError) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-10rem)] py-4 w-full">
+        <div className="flex items-center "></div>
+      </div>
+    );
+  }
+
   if (!threadId) {
     return (
       <div className="flex items-center justify-center h-[calc(100vh-10rem)] py-4 w-full">
@@ -35,17 +54,6 @@ const MailDisplay = () => {
       </div>
     );
   }
-
-  const {
-    data: emailthread,
-    isLoading,
-    isError,
-  } = useQuery({
-    queryKey: ["emailthread", threadId],
-    queryFn: () =>
-      axios.get(`/api/google/emails/${threadId}`).then((res) => res.data),
-    enabled: !!threadId,
-  });
 
   return (
     <div className="flex flex-col h-[calc(100vh-10rem)] px-1 md:px-2 py-4 w-full">

@@ -78,6 +78,8 @@ const formSchema = z.object({
 });
 
 const Taskform: React.FC<prop> = ({ id }) => {
+  const [open, setOpen] = React.useState(false);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -114,6 +116,7 @@ const Taskform: React.FC<prop> = ({ id }) => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["tasklist"] });
       toast.success("Task added successfully");
+      setOpen(false);
     },
   });
 
@@ -122,11 +125,12 @@ const Taskform: React.FC<prop> = ({ id }) => {
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger>
-        <Button variant="link" className="flex items-center">
-          <CirclePlus size={16} className="mr-0.5" /> Add task
-        </Button>
+        <div className="flex items-center gap-x-1 py-1 dark:text-white hover:dark:text-gray-300 hover:text-gray-50 text-gray-600">
+          <CirclePlus size={16} className="mr-1" />
+          <p>Add Task</p>
+        </div>
       </DialogTrigger>
       <DialogContent className="dark:bg-dark-300 border-0 dark:text-white text-black bg-white overflow-hidden">
         <DialogHeader className="py-4 px-6">
@@ -225,7 +229,7 @@ const Taskform: React.FC<prop> = ({ id }) => {
               />
             </div>
             <div className="flex items-center justify-end mt-2">
-              <Button className="">Create task</Button>
+              <Button disabled={isSubmitting}>Create task</Button>
             </div>
           </form>
         </Form>

@@ -70,6 +70,7 @@ export type Task = {
   status: string;
   due: string;
   completed: string;
+  isCompleted: boolean;
   deleted?: boolean;
   hidden?: boolean;
   links?: [

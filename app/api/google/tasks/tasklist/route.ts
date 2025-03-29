@@ -32,13 +32,20 @@ export async function GET(req: NextRequest) {
       taskList.map(async (task) => {
         const taskDetails = await tasks.tasks.list({
           showCompleted: true,
+          showHidden: true,
           maxResults: 50,
           tasklist: task.id,
         });
 
+        const tasksWithCompletion =
+          taskDetails?.data?.items?.map((t) => ({
+            ...t,
+            isCompleted: t.status === "completed", // Add isCompleted property
+          })) || [];
+
         return {
           ...task,
-          tasks: taskDetails?.data?.items || [],
+          tasks: tasksWithCompletion,
         };
       })
     );

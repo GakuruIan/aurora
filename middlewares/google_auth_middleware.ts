@@ -24,10 +24,7 @@ export async function googleRefreshTokenMiddleware(req: NextRequest) {
     return new NextResponse("Unauthorized", { status: 401 });
   }
 
-  console.log(isGooglePath);
-
   if (!isGooglePath) {
-    console.log("is not google path");
     return NextResponse.next();
   }
 

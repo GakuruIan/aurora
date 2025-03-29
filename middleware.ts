@@ -1,8 +1,6 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
-import { googleRefreshTokenMiddleware } from "@/middlewares/google_auth_middleware";
-
 const isProtectedRoute = createRouteMatcher(["/(main)(.*)", "/api/(.*)"]);
 
 export default clerkMiddleware(async (auth, req) => {
@@ -16,7 +14,7 @@ export default clerkMiddleware(async (auth, req) => {
     await auth.protect();
   }
 
-  // return googleRefreshTokenMiddleware(req);
+  return NextResponse.next();
 });
 
 export const config = {

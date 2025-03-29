@@ -1,6 +1,8 @@
 "use client";
 import React from "react";
 
+import { AnimatePresence, motion } from "motion/react";
+
 // image
 import Image from "next/image";
 
@@ -29,6 +31,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "../ui/separator";
 import Taskform from "../TaskList/Taskform";
 
+import EditTaskform from "../TaskList/Task/EditTaskform";
+
 // toast
 import { toast } from "sonner";
 
@@ -42,10 +46,18 @@ import axios from "axios";
 import { TasksList } from "@/types";
 import { getFullDateFromTimestamp } from "@/lib/utils/utils";
 
+// utils
+import { cn } from "@/lib/utils";
+
+// mutations
+import { useUpdateTaskStatus } from "@/hooks/mutations/tasks";
+
 // empty image
 import empty from "@/public/empty.png";
 
 const Board = () => {
+  const [edittingId, setedittingId] = React.useState<string | null>(null);
+
   const { data: tasklist, isLoading } = useQuery({
     queryKey: ["tasklist"],
     queryFn: () =>
@@ -54,8 +66,11 @@ const Board = () => {
         .then((res) => res.data),
   });
 
+  const updateTaskStatus = useUpdateTaskStatus();
+
   const queryClient = useQueryClient();
 
+  // deleting a tasklist
   const mutation = useMutation({
     mutationFn: async (id: string) => {
       try {
@@ -111,6 +126,25 @@ const Board = () => {
     });
   };
 
+  const handleStatusChange = (
+    tasklistid: string,
+    taskid: string,
+    status: boolean
+  ) => {
+    toast.promise(
+      updateTaskStatus.mutateAsync({
+        tasklistid,
+        taskid,
+        status: status ? "needsAction" : "completed",
+      }),
+      {
+        loading: "Updating task status",
+        success: "Task status updated successfully!",
+        error: (error) => `Error: ${error.message}`,
+      }
+    );
+  };
+
   const CARDS = [1, 2, 3];
 
   if (isLoading) {
@@ -142,7 +176,10 @@ const Board = () => {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+    <div
+      className="grid grid-cols-1 md:grid-cols-2  gap-2"
+      style={{ alignItems: "flex-start" }}
+    >
       {tasklist?.map((list) => (
         <Card key={list.id}>
           <CardHeader>
@@ -151,11 +188,13 @@ const Board = () => {
 
               {/* more action */}
               <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="p-2 rounded-full transition-colors duration-75 cursor-pointer hover:dark:bg-dark-50 hover:bg-gray-200">
-                    <EllipsisVertical size={18} />
-                  </button>
-                </DropdownMenuTrigger>
+                {list.title !== "My Tasks" && (
+                  <DropdownMenuTrigger asChild>
+                    <div className="p-2 rounded-full transition-colors duration-75 cursor-pointer hover:dark:bg-dark-50 hover:bg-gray-200">
+                      <EllipsisVertical size={18} />
+                    </div>
+                  </DropdownMenuTrigger>
+                )}
                 <DropdownMenuContent>
                   <DropdownMenuLabel>List Actions</DropdownMenuLabel>
                   <DropdownMenuSeparator />
@@ -187,37 +226,101 @@ const Board = () => {
             ) : (
               list?.tasks?.map((task) => (
                 <div className="mb-2" key={task.id}>
-                  <div className="flex items-top mb-1 group hover:cursor-pointer hover:dark:bg-dark-50 px-2 py-3  rounded-sm transition-all duration-75 ">
-                    <Checkbox />
-                    <div className="flex flex-1 ml-2 leading-none">
-                      <div className="w-full">
-                        <p className="mb-0.5 text-base leading-none">
-                          {task.title}
-                        </p>
-                        <p className="text-gray-500 dark:text-gray-400 text-sm">
-                          {task.notes}
-                        </p>
-                        <div className="mt-1 flex items-center gap-x-6 w-full">
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            Status {task.status}
-                          </p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            Due date {getFullDateFromTimestamp(task.due)}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex  gap-x-1 ml-auto">
-                        <Trash2
-                          onClick={() => handDelete(list.id, task.id)}
-                          size={16}
-                          className="hidden group-hover:block hover:text-rose-500"
+                  <AnimatePresence mode="wait">
+                    {edittingId === task.id ? (
+                      <motion.div
+                        key={`edit-${task.id}`}
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                      >
+                        <EditTaskform
+                          tasklistid={list.id}
+                          task={task}
+                          setEdittingId={setedittingId}
                         />
-                        <Grip size={16} className="hidden group-hover:block" />
-                      </div>
-                    </div>
-                  </div>
-                  <Separator />
+                      </motion.div>
+                    ) : (
+                      <motion.div
+                        key={`view-${task.id}`}
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                      >
+                        <div className="mb-1">
+                          <div className="flex items-top mb-1 group hover:cursor-pointer hover:dark:bg-dark-50 px-2 py-3  rounded-sm transition-all duration-75 ">
+                            {/* checkbox to update status */}
+                            <Checkbox
+                              checked={task.isCompleted}
+                              onCheckedChange={() =>
+                                handleStatusChange(
+                                  list.id,
+                                  task.id,
+                                  task.isCompleted
+                                )
+                              }
+                            />
+                            {/* checkbox to update status */}
+
+                            <div className="flex flex-1 ml-2 leading-none">
+                              <div className="w-full">
+                                <p
+                                  className={cn(
+                                    "mb-0.5 text-base leading-none",
+                                    task?.isCompleted && "line-through"
+                                  )}
+                                >
+                                  {task.title}
+                                </p>
+                                <p
+                                  className={cn(
+                                    "text-gray-500 dark:text-gray-400 text-sm",
+                                    task.isCompleted && "line-through"
+                                  )}
+                                >
+                                  {task.notes}
+                                </p>
+                                <div className="mt-1 flex items-center gap-x-6 w-full">
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                                    Status {task.status}
+                                  </p>
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                                    {task.isCompleted
+                                      ? `Completed date ${getFullDateFromTimestamp(
+                                          task.completed
+                                        )}`
+                                      : `Due date ${getFullDateFromTimestamp(
+                                          task.due
+                                        )}`}
+                                  </p>
+                                </div>
+                              </div>
+
+                              <div className="flex  gap-x-2 ml-auto">
+                                <Pencil
+                                  size={16}
+                                  onClick={() => setedittingId(task.id)}
+                                  className="hidden group-hover:block hover:text-gray-300"
+                                />
+                                <Trash2
+                                  onClick={() => handDelete(list.id, task.id)}
+                                  size={16}
+                                  className="hidden group-hover:block hover:text-rose-500"
+                                />
+                                <Grip
+                                  size={16}
+                                  className="hidden group-hover:block"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                          <Separator />
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </div>
               ))
             )}
