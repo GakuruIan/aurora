@@ -1,5 +1,7 @@
 import { clerkMiddleware, createRouteMatcher } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { google } from "googleapis";
+import { db } from "./lib/db";
 
 const isProtectedRoute = createRouteMatcher(["/(main)(.*)", "/api/(.*)"]);
 
@@ -26,5 +28,4 @@ export const config = {
 
     "/(main)(.*)",
   ],
-  runtime: "nodejs",
 };

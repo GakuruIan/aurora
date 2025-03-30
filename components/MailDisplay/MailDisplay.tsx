@@ -15,6 +15,8 @@ import axios from "axios";
 // router
 import { useSearchParams } from "next/navigation";
 
+import { PreprocessEmailContent } from "@/lib/utils/processEmail";
+
 const MailDisplay = () => {
   const urlSearchParams = useSearchParams();
 
@@ -111,7 +113,13 @@ const MailDisplay = () => {
                 key={message.id}
               >
                 <h2 className="font-medium mb-2">{message?.subject}</h2>
-                <p className="text-sm w-full">{message?.content}</p>
+                <p className="text-sm w-full">
+                  <div
+                    dangerouslySetInnerHTML={{
+                      __html: PreprocessEmailContent(message?.content || ""),
+                    }}
+                  />
+                </p>
               </div>
             ))}
           </ScrollArea>

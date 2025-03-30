@@ -26,8 +26,7 @@ export async function GET(req: NextRequest) {
 
     const emails = await gmail.users.messages.list({
       userId: "me",
-      labelIds: ["IMPORTANT", "INBOX"],
-      q: "-label:CATEGORY_PROMOTIONS -label:CATEGORY_UPDATES",
+      q: "label:INBOX label:IMPORTANT OR label:STARRED OR label:CATEGORY_PERSONAL OR label:SENT OR is:unread",
       maxResults: 20,
     });
 

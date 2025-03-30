@@ -54,7 +54,7 @@ export async function GET(req: Request) {
       },
     });
 
-    const response = NextResponse.redirect(new URL("/emails", req.url));
+    const response = NextResponse.redirect(new URL("/sync", req.url));
 
     response.cookies.set({
       name: "google_access_token",
@@ -65,6 +65,13 @@ export async function GET(req: Request) {
       maxAge: tokens.expiry_date
         ? Math.max(0, Math.floor((tokens.expiry_date - Date.now()) / 1000))
         : 3600,
+    });
+
+    response.cookies.set("expiry", tokens?.expiry_date.toString(), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      path: "/",
     });
 
     response.cookies.set("google_refresh_token", tokens.refresh_token!, {

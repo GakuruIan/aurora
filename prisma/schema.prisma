@@ -20,6 +20,9 @@ model User {
   categories     NoteCategory[]
   linkedAccounts LinkedAccount[]
   oauthTokens    OAuthToken[]
+  googleEmails   GoogleEmail[]
+  googleTasks    GoogleTask[]
+  syncToken      SyncToken[]
 }
 
 model OAuthToken {
@@ -72,4 +75,53 @@ model NoteCategory {
   updatedAt DateTime @updatedAt
 
   @@unique([name, ownerId])
+}
+
+model GoogleTask {
+  id        String    @id @default(uuid())
+  ownerId   String
+  user      User      @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  taskId    String    @unique
+  title     String
+  notes     String?
+  status    String    @default("needsAction")
+  listTitle String
+  listId    String
+  dueDate   DateTime?
+  completed DateTime?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model GoogleEmail {
+  id               String   @id @default(uuid())
+  ownerId          String
+  user             User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  messageId        String   @unique
+  from             String
+  to               String
+  subject          String
+  body             String   @db.Text
+  preprocessedBody String   @db.Text
+  snippet          String
+  labels           String[] // Stores labels like "INBOX", "IMPORTANT", "STARRED"
+  receivedAt       DateTime
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model SyncToken {
+  id         String @id @default(uuid())
+  taskListId String @unique
+  syncToken  String
+  ownerId    String
+  owner      User   @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+
+  @@unique([ownerId, taskListId])
+}
+
+model GoogleWatch {
+  id        String @id @default(uuid())
+  historyId String
+  userId    String @unique
 }
