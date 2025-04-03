@@ -54,7 +54,9 @@ export async function GET(req: Request) {
       },
     });
 
-    const response = NextResponse.redirect(new URL("/sync", req.url));
+    const response = NextResponse.redirect(
+      new URL(`/sync?account=${userInfo.data.id}`, req.url)
+    );
 
     response.cookies.set({
       name: "google_access_token",

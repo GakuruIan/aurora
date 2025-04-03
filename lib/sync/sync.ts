@@ -1,12 +1,21 @@
 import { db } from "../db";
 import { extractEmailPayload } from "../utils/extractEmailPayload";
 import { PreprocessEmailContent } from "../utils/processEmail";
+import { getEmbeddings } from "../openai/embeddings";
 
 import { gmail_v1, tasks_v1 } from "googleapis";
 
-export async function InitialEmailSync(gmail: gmail_v1.Gmail, userId: string) {
+import OramaDB from "../orama/orama";
+
+export async function InitialEmailSync(
+  gmail: gmail_v1.Gmail,
+  userId: string,
+  accountId: string
+) {
   let nextPageToken: string | null = null;
   let allMessages: gmail_v1.Schema$Message[] = [];
+
+  const orama = OramaDB.getInstance(accountId);
 
   const latest_history_id = (await gmail.users.getProfile({ userId: "me" }))
     .data.historyId;
@@ -42,6 +51,7 @@ export async function InitialEmailSync(gmail: gmail_v1.Gmail, userId: string) {
       const snippet = email.data.snippet || "No preview available";
 
       const extractedBody = extractEmailPayload(email.data.payload);
+      const PreprocessedBody = PreprocessEmailContent(extractedBody);
 
       await db.googleEmail.upsert({
         where: {
@@ -54,7 +64,7 @@ export async function InitialEmailSync(gmail: gmail_v1.Gmail, userId: string) {
           subject,
           snippet,
           body: extractedBody,
-          preprocessedBody: PreprocessEmailContent(extractedBody),
+          preprocessedBody: PreprocessedBody,
           labels: email?.data.labelIds ?? [],
           receivedAt: new Date(Number(email?.data.internalDate) || 0),
         },
@@ -70,6 +80,17 @@ export async function InitialEmailSync(gmail: gmail_v1.Gmail, userId: string) {
           labels: email?.data.labelIds ?? [],
           receivedAt: new Date(Number(email?.data.internalDate) || 0),
         },
+      });
+
+      // insert to orama vector database for full search
+      (await orama).insert({
+        id: email.data.id!,
+        type: "Email",
+        title: subject,
+        tags: email?.data.labelIds ?? [],
+        content: PreprocessEmailContent(extractedBody),
+        date: new Date(Number(email?.data.internalDate) || 0).toISOString(),
+        embeddings: await getEmbeddings(PreprocessedBody),
       });
     }
 
@@ -101,8 +122,14 @@ export async function InitialEmailSync(gmail: gmail_v1.Gmail, userId: string) {
   }
 }
 
-export async function InitialTaskSync(tasks: tasks_v1.Tasks, userId: string) {
+export async function InitialTaskSync(
+  tasks: tasks_v1.Tasks,
+  userId: string,
+  accountId: string
+) {
   try {
+    const orama = OramaDB.getInstance(accountId);
+
     const taskListsRes = await tasks.tasklists.list();
     const taskLists = taskListsRes.data.items || [];
 
@@ -156,6 +183,17 @@ export async function InitialTaskSync(tasks: tasks_v1.Tasks, userId: string) {
               listTitle: tasklist.title || "Untitled task list",
               completed: task.completed ? new Date(task.completed) : null,
             },
+          });
+
+          // insert to orama vector database for full search
+          (await orama).insert({
+            id: task.id,
+            type: "Tasks",
+            title: task.title || "Untitled task",
+            tags: [task.status],
+            content: task.notes || "",
+            date: new Date().toISOString(),
+            embeddings: await getEmbeddings(task.notes ?? task.title ?? ""),
           });
         }
       } while (nextPageToken); // Continue fetching until there's no next page

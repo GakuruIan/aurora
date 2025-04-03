@@ -7,19 +7,29 @@ import HashLoader from "react-spinners/HashLoader";
 import { useMutation } from "@tanstack/react-query";
 
 import axios from "axios";
+// router
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+
+// component
 import { toast } from "sonner";
 
 const Page = () => {
   const router = useRouter();
+
+  const urlSearchParams = useSearchParams();
+
+  const accountId = urlSearchParams.get("account");
 
   const {
     mutate: SyncGoogle,
     isPending,
     isError,
   } = useMutation({
-    mutationFn: () => axios.get("/api/google/sync").then((res) => res.data),
+    mutationFn: () =>
+      axios
+        .get(`/api/google/sync?account=${accountId}`)
+        .then((res) => res.data),
     onSuccess: () => {
       toast.success("Data has been sync successfully");
       router.replace("/dashboard");

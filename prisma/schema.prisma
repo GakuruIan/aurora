@@ -38,6 +38,8 @@ model OAuthToken {
   expiryDate   DateTime?
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
+  synced       Boolean   @default(false)
+  oramaIndex   Json?
 
   @@unique([ownerId, googleEmail])
   @@index([ownerId])

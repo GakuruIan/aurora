@@ -1,6 +1,10 @@
 import { db } from "@/lib/db";
 import { currentUser } from "@/lib/current-user";
-import { NextResponse } from "next/server";
+import { NextResponse, NextRequest } from "next/server";
+import { google } from "googleapis";
+import { createOAuth2Client } from "@/lib/utils/google";
+import OramaDB from "@/lib/orama/orama";
+import { getEmbeddings } from "@/lib/openai/embeddings";
 
 export async function GET() {
   const user = await currentUser();
@@ -35,8 +39,22 @@ export async function GET() {
   }
 }
 
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
+    const accessToken = req.cookies.get("google_access_token")?.value;
+
+    if (!accessToken) {
+      return new NextResponse("No access token found", { status: 401 });
+    }
+
+    const oauthClient = createOAuth2Client();
+    oauthClient.setCredentials({
+      access_token: accessToken,
+    });
+
+    const oauth2 = google.oauth2({ version: "v2", auth: oauthClient });
+    const userInfo = await oauth2.userinfo.get();
+
     const user = await currentUser();
 
     if (!user) {
@@ -71,6 +89,24 @@ export async function POST(req: Request) {
       );
     }
 
+    const category = await db.noteCategory.findUnique({
+      where: {
+        id: categoryId,
+      },
+      select: {
+        name: true,
+      },
+    });
+
+    if (!category) {
+      return NextResponse.json(
+        {
+          error: "No category exists with the that ID",
+        },
+        { status: 404 }
+      );
+    }
+
     const newNote = await db.note.create({
       data: {
         title,
@@ -78,6 +114,27 @@ export async function POST(req: Request) {
         categoryId: categoryId,
         ownerId: user.id,
       },
+    });
+
+    const accountId = userInfo.data.id;
+
+    if (!accountId) {
+      return NextResponse.json(
+        { error: "Google account not found" },
+        { status: 404 }
+      );
+    }
+
+    const orama = OramaDB.getInstance(accountId);
+
+    (await orama).insert({
+      id: newNote.id,
+      title: newNote.title,
+      content: newNote.content,
+      type: "Notes",
+      tags: [`${category.name}`],
+      date: new Date().toISOString(),
+      embeddings: getEmbeddings(newNote.content ?? newNote.title ?? ""),
     });
 
     return NextResponse.json(

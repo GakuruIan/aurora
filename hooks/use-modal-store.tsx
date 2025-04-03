@@ -6,7 +6,8 @@ export type ModalType =
   | "DeleteNote"
   | "CreateNoteCategory"
   | "EditCategory"
-  | "DeleteCategory";
+  | "DeleteCategory"
+  | "Search";
 
 import { NotesWithCategory } from "@/types";
 
