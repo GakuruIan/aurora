@@ -1,8 +1,20 @@
 "use client";
 import React from "react";
 
+// tanstack
+import { useQuery } from "@tanstack/react-query";
+
+// axios
+import axios from "axios";
+
 // icons
-import { MailOpen, Mail, Sparkles } from "lucide-react";
+import {
+  MailOpen,
+  Mail,
+  Sparkles,
+  ShieldAlert,
+  CircleCheckBig,
+} from "lucide-react";
 
 // recharts
 import { CartesianGrid, Line, LineChart, XAxis, Pie, PieChart } from "recharts";
@@ -21,14 +33,31 @@ import {
   ChartContainer,
   ChartTooltip,
   ChartTooltipContent,
+  ChartLegend,
+  ChartLegendContent,
 } from "@/components/ui/chart";
 
 // dummy data
-import { chartData, PieData } from "@/data/data";
+import { chartData } from "@/data/data";
 import Upcomingtasks from "@/components/UpcomingTasks/Upcomingtasks";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 const Page = () => {
+  const {
+    data: summary,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["summary"],
+    queryFn: async () =>
+      await axios.get("/api/summary").then((res) => res.data),
+  });
+
+  console.log(summary);
+
+  const CARDS = [1, 2, 3];
+
   const chartConfig = {
     desktop: {
       label: "Desktop",
@@ -41,30 +70,69 @@ const Page = () => {
   } satisfies ChartConfig;
 
   const PieConfig = {
-    visitors: {
-      label: "Visitors",
-    },
-    chrome: {
-      label: "Chrome",
-      color: "hsl(var(--chart-1))",
-    },
-    safari: {
-      label: "Safari",
+    completed: {
+      label: "completed",
       color: "hsl(var(--chart-2))",
     },
-    firefox: {
-      label: "Firefox",
-      color: "hsl(var(--chart-3))",
-    },
-    edge: {
-      label: "Edge",
-      color: "hsl(var(--chart-4))",
-    },
-    other: {
-      label: "Other",
+    needsAction: {
+      label: "needsAction",
       color: "hsl(var(--chart-5))",
     },
   } satisfies ChartConfig;
+
+  // loading screen
+  if (isLoading) {
+    return (
+      <div className="">
+        <div className="animate-pulse">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+            {CARDS.map((card) => (
+              <div
+                key={card}
+                className="h-44 dark:bg-dark-50 bg-gray-400 rounded-md"
+              ></div>
+            ))}
+          </div>
+        </div>
+
+        <div className="animate-pulse mt-4">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-2">
+            <div className="col-span-full md:col-span-8 h-44 dark:bg-dark-50 bg-gray-400 rounded-md"></div>
+            <div className="col-span-full md:col-span-4 h-44 dark:bg-dark-50 bg-gray-400 rounded-md"></div>
+          </div>
+        </div>
+
+        <div className="animate-pulse mt-4">
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-2">
+            <div className="col-span-full md:col-span-4 h-44 dark:bg-dark-50 bg-gray-400 rounded-md"></div>
+            <div className="col-span-full md:col-span-8 h-44 dark:bg-dark-50 bg-gray-400 rounded-md"></div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // error screen
+  if (isError) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-10rem)]">
+        <div className="">
+          <h4 className="text-3xl font-medium mb-1">An Error has Occurred</h4>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
+            {error.message}
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  const taskData = summary?.tasks
+    ? Object.entries(summary.tasks).map(([status, count]) => ({
+        name: status, // Task status (needsAction/completed)
+        value: count, // Task count
+        fill: status === "completed" ? "#4AD092" : "#0579F9",
+      }))
+    : [];
 
   return (
     <div className="">
@@ -72,22 +140,37 @@ const Page = () => {
         <Card>
           <CardHeader>
             <CardTitle>Tasks Summary</CardTitle>
-            <CardDescription>Card description</CardDescription>
+            <CardDescription>Tasks from google tasks</CardDescription>
           </CardHeader>
 
           <CardContent>
-            <h3 className="text-xl font-bold">Card Content</h3>
+            <div className="flex items-center gap-x-4 flex-wrap gap-y-2">
+              <div className="flex items-center gap-x-1">
+                <CircleCheckBig size={16} />
+                <p className="text-sm dark:text-gray-400 text-gray-500">
+                  completed - {summary.tasks?.completed}
+                </p>
+              </div>
+              <div className="flex items-center gap-x-1">
+                <ShieldAlert size={16} />
+                <p className="text-sm dark:text-gray-400 text-gray-500">
+                  needsAction - {summary.tasks?.needsAction}
+                </p>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
             <CardTitle>Notes Summary</CardTitle>
-            <CardDescription>Card description</CardDescription>
+            <CardDescription>Notes</CardDescription>
           </CardHeader>
 
           <CardContent>
-            <h3 className="text-xl font-bold">Card Content</h3>
+            <p className="text-sm dark:text-gray-400 text-gray-500">
+              Total notes {summary?.notes}
+            </p>
           </CardContent>
         </Card>
 
@@ -106,7 +189,7 @@ const Page = () => {
               <div className="flex items-center gap-x-1">
                 <Mail size={16} />
                 <p className="text-sm dark:text-gray-400 text-gray-500">
-                  Unread
+                  Unread - {summary?.unreadEmails}
                 </p>
               </div>
             </div>
@@ -182,16 +265,16 @@ const Page = () => {
                     content={<ChartTooltipContent hideLabel />}
                   />
                   <Pie
-                    data={PieData}
-                    dataKey="visitors"
-                    nameKey="browser"
+                    data={taskData}
+                    dataKey="value"
+                    nameKey="name"
                     innerRadius={60}
                     strokeWidth={5}
                   />
-                  {/* <ChartLegend
-                    content={<ChartLegendContent nameKey="browser" />}
+                  <ChartLegend
+                    content={<ChartLegendContent nameKey="name" />}
                     className="-translate-y-2 flex-wrap gap-2 [&>*]:basis-1/4 [&>*]:justify-center"
-                  /> */}
+                  />
                 </PieChart>
               </ChartContainer>
             </CardContent>
@@ -234,7 +317,7 @@ const Page = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Upcomingtasks />
+              <Upcomingtasks tasks={summary.todayTask} />
             </CardContent>
           </Card>
         </div>
