@@ -89,7 +89,7 @@ const Page = () => {
             {CARDS.map((card) => (
               <div
                 key={card}
-                className="h-44 dark:bg-dark-50 bg-gray-400 rounded-md"
+                className="h-44 dark:bg-dark-50 bg-zinc-200 rounded-md"
               ></div>
             ))}
           </div>
@@ -97,15 +97,15 @@ const Page = () => {
 
         <div className="animate-pulse mt-4">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-2">
-            <div className="col-span-full md:col-span-8 h-44 dark:bg-dark-50 bg-gray-400 rounded-md"></div>
-            <div className="col-span-full md:col-span-4 h-44 dark:bg-dark-50 bg-gray-400 rounded-md"></div>
+            <div className="col-span-full md:col-span-8 h-44 dark:bg-dark-50 bg-zinc-200 rounded-md"></div>
+            <div className="col-span-full md:col-span-4 h-44 dark:bg-dark-50 bg-zinc-200 rounded-md"></div>
           </div>
         </div>
 
         <div className="animate-pulse mt-4">
           <div className="grid grid-cols-1 md:grid-cols-12 gap-2">
-            <div className="col-span-full md:col-span-4 h-44 dark:bg-dark-50 bg-gray-400 rounded-md"></div>
-            <div className="col-span-full md:col-span-8 h-44 dark:bg-dark-50 bg-gray-400 rounded-md"></div>
+            <div className="col-span-full md:col-span-4 h-44 dark:bg-dark-50 bg-zinc-200 rounded-md"></div>
+            <div className="col-span-full md:col-span-8 h-44 dark:bg-dark-50 bg-zinc-200 rounded-md"></div>
           </div>
         </div>
       </div>
@@ -127,9 +127,9 @@ const Page = () => {
   }
 
   const taskData = summary?.tasks
-    ? Object.entries(summary.tasks).map(([status, count]) => ({
-        name: status, // Task status (needsAction/completed)
-        value: count, // Task count
+    ? Object.entries(summary?.tasks).map(([status, count]) => ({
+        name: status,
+        value: count,
         fill: status === "completed" ? "#4AD092" : "#0579F9",
       }))
     : [];
@@ -148,13 +148,13 @@ const Page = () => {
               <div className="flex items-center gap-x-1">
                 <CircleCheckBig size={16} />
                 <p className="text-sm dark:text-gray-400 text-gray-500">
-                  completed - {summary.tasks?.completed}
+                  completed - {summary?.tasks?.completed}
                 </p>
               </div>
               <div className="flex items-center gap-x-1">
                 <ShieldAlert size={16} />
                 <p className="text-sm dark:text-gray-400 text-gray-500">
-                  needsAction - {summary.tasks?.needsAction}
+                  needsAction - {summary?.tasks?.needsAction}
                 </p>
               </div>
             </div>
@@ -317,7 +317,7 @@ const Page = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Upcomingtasks tasks={summary.todayTask} />
+              <Upcomingtasks tasks={summary?.todayTask} />
             </CardContent>
           </Card>
         </div>

@@ -68,7 +68,7 @@ class OramaDB {
           content: "string",
           date: "string",
           tags: "string[]",
-          embeddings: "vector[1536]",
+          embeddings: "vector[384]",
         },
       });
       await this.saveIndex();
@@ -91,8 +91,16 @@ class OramaDB {
         property: "embeddings",
       },
       similarity: 0.8,
-      limit: 10,
+      limit: 5,
     });
+
+    if (!results.hits || results.hits.length === 0) {
+      console.log("No documents found matching term:", term);
+      return {
+        hits: [],
+        count: 0,
+      };
+    }
 
     return results;
   }

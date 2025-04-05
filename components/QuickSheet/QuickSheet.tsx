@@ -1,6 +1,8 @@
 "use client";
 import { useState } from "react";
 
+import { AnimatePresence, motion } from "motion/react";
+
 // form
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -33,6 +35,9 @@ import {
 import { useChatStore } from "@/hooks/use-chat-store";
 import { ScrollArea } from "../ui/scroll-area";
 
+// util
+import { cn } from "@/lib/utils";
+
 const formSchema = z.object({
   prompt: z
     .string()
@@ -63,27 +68,79 @@ const ChatSheet = () => {
       history: { role: string; content: string }[];
     }) => {
       try {
-        const response = await axios.post(`/api/chat/`, {
-          prompt: value.prompt,
-          messages: value.history,
+        // Add a temporary placeholder for the assistant's response
+        setHistory((prev) => [...prev, { role: "assistant", content: "" }]);
+
+        const response = await fetch("/api/chat/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            prompt: value.prompt,
+            messages: value.history,
+          }),
         });
-        return response.data;
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          throw new Error(errorData.message || `Error ${response.status}`);
+        }
+
+        const reader = response.body?.getReader();
+        if (!reader) throw new Error("Failed to get response reader");
+
+        const decoder = new TextDecoder();
+        let fullText = "";
+
+        // Process the stream
+        while (true) {
+          const { done, value } = await reader.read();
+
+          if (done) {
+            break;
+          }
+
+          // Decode the chunk
+          const chunk = decoder.decode(value, { stream: true });
+
+          // Parse SSE format
+          const lines = chunk.split("\n\n");
+          for (const line of lines) {
+            if (line.startsWith("data: ")) {
+              const content = line.substring(6);
+              fullText += content;
+
+              setHistory((prev) => {
+                const newHistory = [...prev];
+                newHistory[newHistory.length - 1] = {
+                  role: "assistant",
+                  content: fullText,
+                };
+                return newHistory;
+              });
+            }
+          }
+        }
+
+        return { reply: fullText };
       } catch (error) {
         const errorMessage =
           axios.isAxiosError(error) && error.response?.data?.message
             ? error.response.data.message
+            : error instanceof Error
+            ? error.message
             : "An error occurred";
         throw new Error(errorMessage);
       }
     },
     onError: (error) => {
+      // Remove the assistant's message if there was an error
+      setHistory((prev) => prev.slice(0, -1));
       toast.error("Error", { description: `${error.message}` });
     },
-    onSuccess: (response, variables) => {
-      setHistory([
-        ...variables.history,
-        { role: "assistant", content: response.reply },
-      ]);
+    onSuccess: () => {
+      form.resetField("prompt");
     },
   });
 
@@ -99,6 +156,7 @@ const ChatSheet = () => {
     form.reset();
   };
 
+  console.log(mutation.data);
   return (
     <Sheet open={isOpen} onOpenChange={closeChat}>
       <SheetContent side="right">
@@ -108,15 +166,37 @@ const ChatSheet = () => {
         </SheetDescription>
 
         <ScrollArea className="py-4 min-h-[calc(100vh-10rem)] max-h-[calc(100vh-10rem)]">
-          <div className="flex items-start gap-2">
-            <div className="flex flex-col w-full max-w-[320px] leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-e-xl rounded-es-xl dark:bg-dark-50">
-              <div className="flex items-center space-x-2 rtl:space-x-reverse"></div>
-              <p className="text-sm font-normal py-2.5 text-gray-900 dark:text-white">
-                awesome. I think our users will really appreciate the
-                improvements.
-              </p>
-            </div>
-          </div>
+          <AnimatePresence mode="wait">
+            {history.map((message, index) => (
+              <motion.div
+                key={index}
+                layout="position"
+                layoutId={`container-[${history.length - 1}]`}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                transition={{
+                  ease: "easeInOut",
+                  duration: 0.3,
+                }}
+                className="flex items-start gap-2 mb-2"
+              >
+                <div
+                  className={cn(
+                    "flex flex-col w-full max-w-[320px] leading-1.5 p-4 border-gray-200 ",
+                    message.role === "user"
+                      ? "rounded-s-xl rounded-se-xl bg-gray-100  dark:bg-dark-50"
+                      : "rounded-e-xl rounded-es-xl bg-indigo-500 text-white"
+                  )}
+                >
+                  <div className="flex items-center space-x-2 rtl:space-x-reverse"></div>
+                  <p className="text-sm font-normal py-2.5 text-gray-900 dark:text-white">
+                    {message.content}
+                  </p>
+                </div>
+              </motion.div>
+            ))}
+          </AnimatePresence>
         </ScrollArea>
 
         <Form {...form}>

@@ -1,28 +1,12 @@
 import React from "react";
 
 //icons
-import { Paperclip, SendHorizontal, Menu } from "lucide-react";
-
-// components
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Paperclip, SendHorizontal } from "lucide-react";
 
 const assistant = () => {
   return (
     <>
-      <div className="flex items-center justify-between mx-auto px-2.5 md:px-0 max-w-5xl py-4">
-        <div className="">
-          <div className="md:hidden block">
-            <Menu size={18} />
-          </div>
-        </div>
-
-        <div className="">
-          <Avatar>
-            <AvatarFallback>CN</AvatarFallback>
-          </Avatar>
-        </div>
-      </div>
-      <div className="w-full h-[calc(100vh-88px)] flex items-center justify-center">
+      <div className="w-full h-[calc(100vh-10rem)] flex items-center justify-center">
         <div className="px-4 md:px-0">
           <div className="mb-2 ">
             <h1 className="text-3xl font-semibold text-transparent bg-clip-text bg-gradient-to-r from-linear-one to-linear-two md:text-5xl font-space mb-4">

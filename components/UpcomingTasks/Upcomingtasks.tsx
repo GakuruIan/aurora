@@ -35,7 +35,7 @@ const Upcomingtasks: React.FC<props> = ({ tasks }) => {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {tasks.map((task) => (
+            {tasks?.map((task) => (
               <TableRow key={task.id}>
                 <TableCell className="font-medium">{task.title}</TableCell>
                 <TableCell>{task.status}</TableCell>

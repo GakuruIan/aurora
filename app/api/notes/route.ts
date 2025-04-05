@@ -125,16 +125,16 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const orama = OramaDB.getInstance(accountId);
+    const orama = await OramaDB.getInstance(accountId);
 
-    (await orama).insert({
+    await orama.insert({
       id: newNote.id,
       title: newNote.title,
       content: newNote.content,
       type: "Notes",
       tags: [`${category.name}`],
       date: new Date().toISOString(),
-      embeddings: getEmbeddings(newNote.content ?? newNote.title ?? ""),
+      embeddings: await getEmbeddings(newNote.content ?? newNote.title ?? ""),
     });
 
     return NextResponse.json(

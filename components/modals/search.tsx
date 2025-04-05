@@ -44,6 +44,7 @@ const Search = () => {
   const handleOnClose = () => {
     form.reset();
     onClose();
+    mutation.reset();
   };
 
   const mutation = useMutation({
@@ -70,8 +71,6 @@ const Search = () => {
   const onSubmit = async (value: { term: string }) => {
     mutation.mutate(value);
   };
-
-  console.log(mutation.data);
 
   return (
     <Dialog open={isModalOpen} onOpenChange={handleOnClose}>
