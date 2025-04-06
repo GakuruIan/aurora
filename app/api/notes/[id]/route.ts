@@ -25,7 +25,13 @@ export async function GET(
         ownerId: user.id,
       },
       include: {
-        category: true,
+        category: {
+          select: {
+            id: true,
+            name: true,
+            colorCode: true,
+          },
+        },
       },
     });
 
@@ -35,10 +41,10 @@ export async function GET(
 
     return NextResponse.json(note);
   } catch (error) {
-    console.error("Error updating note:", error);
+    console.error("Error in Fetching note", error);
     return NextResponse.json(
       {
-        error: "Failed to create note",
+        error: "Error in Fetching note",
       },
       { status: 500 }
     );

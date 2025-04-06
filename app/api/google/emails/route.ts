@@ -24,13 +24,23 @@ export async function GET(req: NextRequest) {
 
     const gmail = google.gmail({ version: "v1", auth: oauthClient });
 
-    const emails = await gmail.users.messages.list({
-      userId: "me",
-      q: "label:INBOX label:IMPORTANT OR label:STARRED OR label:CATEGORY_PERSONAL OR label:SENT OR is:unread",
-      maxResults: 20,
-    });
+    let messages: any[] = [];
+    let nextPageToken: string | undefined = undefined;
+    const maxResults = 50;
 
-    const messages = emails.data.messages || [];
+    do {
+      const emails = await gmail.users.messages.list({
+        userId: "me",
+        q: "label:INBOX label:IMPORTANT OR label:STARRED OR label:CATEGORY_PERSONAL OR label:SENT OR is:unread",
+        maxResults,
+      });
+
+      if (emails.data.messages) {
+        messages = [...messages, ...emails.data.messages];
+      }
+
+      nextPageToken = emails.data.nextPageToken;
+    } while (nextPageToken);
 
     const detailedMessages = await Promise.all(
       messages.map(async (message) => {

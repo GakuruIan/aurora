@@ -68,6 +68,7 @@ export async function GET(
 
       return {
         id: message.id,
+        internalDate: message.internalDate,
         subject: subjectHeader?.value ?? "No subject",
         content: emailContent,
       };

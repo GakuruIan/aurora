@@ -165,7 +165,7 @@ const ChatSheet = () => {
           Quick chats, smart replies—always here when you need me. Just ask!
         </SheetDescription>
 
-        <ScrollArea className="py-4 min-h-[calc(100vh-10rem)] max-h-[calc(100vh-10rem)]">
+        <div className="py-4 overflow-y-scroll h-[calc(100vh-10rem)] max-h-[calc(100vh-10rem)]">
           <AnimatePresence mode="wait">
             {history.map((message, index) => (
               <motion.div
@@ -197,7 +197,7 @@ const ChatSheet = () => {
               </motion.div>
             ))}
           </AnimatePresence>
-        </ScrollArea>
+        </div>
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>

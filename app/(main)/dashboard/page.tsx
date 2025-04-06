@@ -14,6 +14,7 @@ import {
   Sparkles,
   ShieldAlert,
   CircleCheckBig,
+  CloudAlert,
 } from "lucide-react";
 
 // recharts
@@ -53,8 +54,6 @@ const Page = () => {
     queryFn: async () =>
       await axios.get("/api/summary").then((res) => res.data),
   });
-
-  console.log(summary);
 
   const CARDS = [1, 2, 3];
 
@@ -116,9 +115,9 @@ const Page = () => {
   if (isError) {
     return (
       <div className="flex items-center justify-center h-[calc(100vh-10rem)]">
-        <div className="">
-          <h4 className="text-3xl font-medium mb-1">An Error has Occurred</h4>
-          <p className="text-sm text-gray-500 dark:text-gray-400">
+        <div className="flex items-center justify-center flex-col gap-y-2">
+          <CloudAlert size={40} className="text-rose-500" />
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
             {error.message}
           </p>
         </div>

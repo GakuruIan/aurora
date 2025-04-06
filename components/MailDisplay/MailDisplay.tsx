@@ -100,25 +100,36 @@ const MailDisplay = () => {
                 </p>
               </div>
             </div>
-            {/* timestamp */}
-            <p className="text-sm dark:text-gray-500 text-gray-400">
-              15 sep 2024
-            </p>
-            {/* timestamp */}
           </header>
           <ScrollArea className=" flex-1 h-80">
             {emailthread?.messages?.map((message) => (
               <div
-                className="md:px-2 w-full  max-w-[22rem] md:max-w-[32rem]"
+                className="md:px-2 w-full mb-4 max-w-[22rem] md:max-w-[32rem]"
                 key={message.id}
               >
-                <h2 className="font-medium mb-2">{message?.subject}</h2>
-                <p className="text-sm w-full">
+                <div className="flex items-center w-full mb-2">
+                  <h2 className="font-medium ">{message?.subject}</h2>
+                  {/* timestamp */}
+
+                  {/* timestamp */}
+                </div>
+                <p className="text-sm w-full mb-2">
                   <div
                     dangerouslySetInnerHTML={{
                       __html: PreprocessEmailContent(message?.content || ""),
                     }}
                   />
+                </p>
+                <p className=" text-sm dark:text-gray-500 text-gray-400">
+                  sent on:{" "}
+                  {new Date(Number(message?.internalDate)).toLocaleDateString(
+                    "en-US",
+                    {
+                      year: "numeric",
+                      month: "2-digit",
+                      day: "2-digit",
+                    }
+                  )}{" "}
                 </p>
               </div>
             ))}

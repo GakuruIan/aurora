@@ -28,7 +28,12 @@ import { toast } from "sonner";
 
 // axios
 import axios from "axios";
+
+// utils
 import { TruncateText } from "@/lib/utils/utils";
+
+//
+import Link from "next/link";
 
 const Search = () => {
   const { isOpen, type, onClose } = useModal();
@@ -131,7 +136,16 @@ const Search = () => {
               </div>
             ) : (
               mutation.data?.map((item) => (
-                <div
+                <Link
+                  href={
+                    item.document.type !== "Email"
+                      ? `${`/${item?.document.type.toLowerCase()}`}/${
+                          item?.document.id
+                        }`
+                      : `${`/${item?.document.type.toLowerCase()}s`}?threadId=/${
+                          item?.document.id
+                        }`
+                  }
                   key={item?.id}
                   className="py-2 hover:cursor-pointer hover:dark:bg-dark-50 hover:bg-gray-200 px-2 mb-1 rounded-sm max-w-[30rem]"
                 >
@@ -146,7 +160,7 @@ const Search = () => {
                   <p className="text-sm font-normal line-clamp-1">
                     {TruncateText(item?.document.content, 10)}
                   </p>
-                </div>
+                </Link>
               ))
             )}
           </div>

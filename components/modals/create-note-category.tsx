@@ -50,6 +50,7 @@ const formSchema = z.object({
 });
 
 const CreateNoteCategory = () => {
+  // TODO:convert this use tanstack query
   const { isOpen, type, onClose } = useModal();
 
   const isModalOpen = isOpen && type === "CreateNoteCategory";
