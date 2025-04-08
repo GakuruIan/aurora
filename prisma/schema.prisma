@@ -8,14 +8,14 @@ datasource db {
 }
 
 model User {
-  id             String          @id @unique @default(uuid())
-  clerkId        String          @unique
-  email          String          @unique
-  username       String          @unique
+  id             String            @id @unique @default(uuid())
+  clerkId        String            @unique
+  email          String            @unique
+  username       String            @unique
   avatar         String
-  verified       Boolean         @default(false)
-  createdAt      DateTime        @default(now())
-  updatedAt      DateTime        @updatedAt
+  verified       Boolean           @default(false)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
   notes          Note[]
   categories     NoteCategory[]
   linkedAccounts LinkedAccount[]
@@ -23,6 +23,7 @@ model User {
   googleEmails   GoogleEmail[]
   googleTasks    GoogleTask[]
   syncToken      SyncToken[]
+  chats          ChatInteraction[]
 }
 
 model OAuthToken {
@@ -101,6 +102,8 @@ model GoogleEmail {
   user             User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
   messageId        String   @unique
   from             String
+  address          String
+  name             String
   to               String
   subject          String
   body             String   @db.Text
@@ -126,4 +129,16 @@ model GoogleWatch {
   id        String @id @default(uuid())
   historyId String
   userId    String @unique
+}
+
+model ChatInteraction {
+  id          String   @id @default(uuid())
+  userId      String
+  chatId      String   @default(uuid())
+  userMessage String
+  aiResponse  String
+  createdAt   DateTime @default(now())
+  embeddings  Json
+
+  user User @relation(fields: [userId], references: [id])
 }

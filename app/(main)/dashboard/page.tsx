@@ -41,7 +41,6 @@ import {
 // dummy data
 import { chartData } from "@/data/data";
 import Upcomingtasks from "@/components/UpcomingTasks/Upcomingtasks";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 const Page = () => {
   const {
@@ -59,11 +58,11 @@ const Page = () => {
 
   const chartConfig = {
     desktop: {
-      label: "Desktop",
+      label: "needsAction",
       color: "hsl(var(--chart-1))",
     },
     mobile: {
-      label: "Mobile",
+      label: "completed",
       color: "hsl(var(--chart-2))",
     },
   } satisfies ChartConfig;
@@ -282,32 +281,9 @@ const Page = () => {
       </div>
       {/* task analysis */}
 
-      <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-        <div className="col-span-full md:col-span-4">
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between mb-1">
-                <h5 className="">Today&apos;s AI insights</h5>
-                <Sparkles size={18} />
-              </CardTitle>
-              <CardDescription>
-                This is your daily AI insight for the day{" "}
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ScrollArea className="h-56">
-                <p className="text-sm dark:text-gray-400 text-gray-500">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsum
-                  non cupiditate inventore consectetur molestias nulla atque,
-                  quos laborum vel quibusdam?
-                </p>
-              </ScrollArea>
-            </CardContent>
-          </Card>
-        </div>
-
+      <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
         {/* Today's tasks */}
-        <div className="col-span-full md:col-span-8 ">
+        <div className="">
           <Card>
             <CardHeader>
               <CardTitle>Today&apos;s Tasks</CardTitle>

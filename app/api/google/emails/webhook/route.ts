@@ -62,12 +62,17 @@ export async function POST(req: NextRequest) {
 
         const extractedBody = extractEmailPayload(email.data.payload);
 
+        const email_address = from.match(/<([^>]+)>/)?.[1] || from;
+        const name = from.split("<")[0].trim() || "";
+
         await db.googleEmail.upsert({
           where: {
             messageId: email.data.id!,
           },
           update: {
             ownerId: user.id,
+            address: email_address,
+            name,
             from: from,
             to: recipient,
             subject,
@@ -82,6 +87,8 @@ export async function POST(req: NextRequest) {
             messageId: email.data.id!,
             from: from,
             to: recipient,
+            address: email_address,
+            name,
             subject,
             snippet,
             body: extractedBody,

@@ -11,8 +11,15 @@ export type ModalType =
 
 import { NotesWithCategory } from "@/types";
 
+interface NoteCategory {
+  id: string;
+  name: string;
+  colorCode: string;
+}
+
 interface ModalData {
   note?: NotesWithCategory;
+  category?: NoteCategory;
 }
 
 interface ModalStore {

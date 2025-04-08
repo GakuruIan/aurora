@@ -1,8 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 
 import Image from "next/image";
+
+interface Account {
+  id: string;
+  googleEmail: string;
+  googleId: string;
+}
 
 // icons
 import { ChevronsUpDown, Plus } from "lucide-react";
@@ -17,6 +23,9 @@ import {
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
 
+import axios from "axios";
+import { useQuery } from "@tanstack/react-query";
+
 import {
   SidebarMenu,
   SidebarMenuButton,
@@ -29,26 +38,16 @@ import logo from "@/public/colorful-logo.png";
 const Accountswitcher = () => {
   const { isMobile } = useSidebar();
 
-  const [accounts] = useState([
-    {
-      id: 1,
-      email: "test@gmail.com",
-    },
-    {
-      id: 2,
-      email: "test2@gmail.com",
-    },
-    {
-      id: 3,
-      email: "test3@gmail.com",
-    },
-  ]);
-
-  const [activeAccount, setActiveAccount] = useState(accounts[0]);
-
-  if (!activeAccount) {
-    return null;
-  }
+  const {
+    data: accounts,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["accounts"],
+    queryFn: async () =>
+      await axios.get<Account[]>("/api/accounts").then((res) => res.data),
+  });
 
   return (
     <SidebarMenu>
@@ -72,20 +71,20 @@ const Accountswitcher = () => {
             <DropdownMenuLabel className="text-xs text-muted-foreground">
               Accounts
             </DropdownMenuLabel>
-            {accounts.map((account, index) => (
-              <DropdownMenuItem
-                key={account.id}
-                onClick={() => setActiveAccount(account)}
-                className="gap-2 p-2"
-              >
+            {accounts?.map((account) => (
+              <DropdownMenuItem key={account.id} className="gap-2 p-2">
                 {/* <div className="flex size-6 items-center justify-center rounded-sm border">
                 <team.logo className="size-4 shrink-0" />
               </div> */}
-                <span className="truncate font-semibold"> {account.email}</span>
+                <span className="truncate font-semibold">
+                  {" "}
+                  {account.googleEmail}
+                </span>
 
-                <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut>
+                {/* <DropdownMenuShortcut>⌘{index + 1}</DropdownMenuShortcut> */}
               </DropdownMenuItem>
             ))}
+
             <DropdownMenuSeparator className="dark:bg-dark-10" />
             <DropdownMenuItem className="gap-2 p-2">
               <div className="flex size-6 items-center justify-center rounded-md border bg-background">

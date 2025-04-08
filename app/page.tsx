@@ -1,9 +1,14 @@
+"use client";
 import Image from "next/image";
 import Link from "next/link";
 
 import logo from "@/public/colorful-logo.png";
 
+import { useAuth } from "@clerk/nextjs";
+
 export default function Home() {
+  const { userId, isLoaded } = useAuth();
+
   return (
     <div className="relative min-h-screen  bg-dark-250">
       {/* navbar */}
@@ -73,11 +78,12 @@ export default function Home() {
         {/* animated input
 
         {/* button */}
+
         <Link
-          href="/login"
+          href={userId && isLoaded ? "/dashboard" : "/login"}
           className="flex items-center w-48 bg-indigo-600 hover:bg-indigo-500 transition duration-75 text-white  rounded-md justify-center font-medium font-barlow text-sm px-4 py-2.5 "
         >
-          Get Started
+          {userId && isLoaded ? "Go to Dashboard" : "Get started"}
         </Link>
         {/* button */}
       </div>

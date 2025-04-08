@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
     const gmail = google.gmail({ version: "v1", auth: oauthClient });
 
     let messages: any[] = [];
-    let nextPageToken: string | undefined = undefined;
+    let nextPageToken: string | undefined | null = undefined;
     const maxResults = 50;
 
     do {
@@ -33,6 +33,7 @@ export async function GET(req: NextRequest) {
         userId: "me",
         q: "label:INBOX label:IMPORTANT OR label:STARRED OR label:CATEGORY_PERSONAL OR label:SENT OR is:unread",
         maxResults,
+        pageToken: nextPageToken,
       });
 
       if (emails.data.messages) {

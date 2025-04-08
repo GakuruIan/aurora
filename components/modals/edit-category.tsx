@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useEffect } from "react";
 
 import { z } from "zod";
 
@@ -44,17 +44,19 @@ import axios from "axios";
 
 const formSchema = z.object({
   name: z.string().min(5, {
-    message: "Username must be at least 5 characters.",
+    message: "Category name must be at least 5 characters.",
   }),
   colorCode: z.string().min(1, {
     message: "You need to select a category type.",
   }),
 });
 
-const CreateNoteCategory = () => {
-  const { isOpen, type, onClose } = useModal();
+const EditNoteCategory = () => {
+  const { isOpen, type, onClose, data } = useModal();
 
-  const isModalOpen = isOpen && type === "CreateNoteCategory";
+  const isModalOpen = isOpen && type === "EditCategory";
+
+  const { category } = data;
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -63,6 +65,13 @@ const CreateNoteCategory = () => {
       colorCode: "",
     },
   });
+
+  useEffect(() => {
+    if (category && isModalOpen) {
+      form.setValue("name", category?.name);
+      form.setValue("colorCode", category?.colorCode);
+    }
+  }, [category, form, isModalOpen]);
 
   const handleOnClose = () => {
     form.reset();
@@ -74,7 +83,10 @@ const CreateNoteCategory = () => {
   const mututation = useMutation({
     mutationFn: async (values: z.infer<typeof formSchema>) => {
       try {
-        const response = await axios.post("/api/noteCategory", values);
+        const response = await axios.patch(
+          `/api/noteCategory/${category?.id}`,
+          values
+        );
         return response.data;
       } catch (error) {
         const errorMessage =
@@ -97,8 +109,8 @@ const CreateNoteCategory = () => {
 
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     toast.promise(mututation.mutateAsync(values), {
-      loading: "Creating note category...",
-      success: "Note category created successfully",
+      loading: "Updating note category...",
+      success: "Note category updated successfully",
       error: (error) => `${error}`,
     });
   };
@@ -110,7 +122,7 @@ const CreateNoteCategory = () => {
       <DialogContent className="dark:bg-dark-300 border-0 dark:text-white text-black bg-white overflow-hidden">
         <DialogHeader className="py-4 px-6">
           <DialogTitle className="text-center font-poppins font-medium tracking-wide mb-1 dark:text-white text-gray-600">
-            Create note category
+            Edit note category
           </DialogTitle>
           <DialogDescription className="text-center font-barlow text-sm dark:text-gray-400 text-gray-500">
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Laborum,
@@ -126,7 +138,7 @@ const CreateNoteCategory = () => {
                 name="name"
                 render={({ field, fieldState }) => (
                   <FormItem className="w-full mb-4">
-                    <FormLabel htmlFor="note">Category</FormLabel>
+                    <FormLabel htmlFor="note">Category name</FormLabel>
                     <FormControl>
                       <Input
                         className="resize-none placeholder:text-sm placeholder:dark:text-gray-400 placeholder:text-gray-400 bg-light-200 tracking-wider font-saira dark:bg-dark-50 dark:text-white  border-0 focus-visible:ring-0 focus-visible:ring-offset-0"
@@ -180,7 +192,7 @@ const CreateNoteCategory = () => {
                 isLoading={isLoading}
                 loadingText="Submitting..."
                 type="submit"
-                label="Create note category"
+                label="Update note category"
                 style="bg-indigo-600 hover:bg-indigo-500 text-white"
               />
             </DialogFooter>
@@ -191,4 +203,4 @@ const CreateNoteCategory = () => {
   );
 };
 
-export default CreateNoteCategory;
+export default EditNoteCategory;

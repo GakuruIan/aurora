@@ -26,8 +26,6 @@ import { Navlinks } from "@/constants/navlinks";
 
 import Link from "next/link";
 
-import UserAccount from "../UserAccount/UserAccount";
-
 const Appsiderbar = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
   return (
     <Sidebar collapsible="icon" {...props}>

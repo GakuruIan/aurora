@@ -25,6 +25,8 @@ const Inbox = () => {
     return <Error error={error?.message} />;
   }
 
+  console.log(emails);
+
   return (
     <div>
       {isLoading ? (

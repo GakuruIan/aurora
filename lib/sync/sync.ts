@@ -50,6 +50,9 @@ export async function InitialEmailSync(
         headers.find((h) => h.name === "To")?.value || "Unknown recipient";
       const snippet = email.data.snippet || "No preview available";
 
+      const email_address = from.match(/<([^>]+)>/)?.[1] || from.value;
+      const name = from.split("<")[0].trim() || "";
+
       const extractedBody = extractEmailPayload(email.data.payload);
 
       const body = turndown.turndown(extractedBody ?? snippet ?? "");
@@ -62,6 +65,8 @@ export async function InitialEmailSync(
           ownerId: userId,
           from: from,
           to: recipient,
+          address: email_address,
+          name,
           subject,
           snippet,
           body: extractedBody,
@@ -73,6 +78,8 @@ export async function InitialEmailSync(
           ownerId: userId,
           messageId: email.data.id!,
           from: from,
+          address: email_address,
+          name,
           to: recipient,
           subject,
           snippet,

@@ -2,7 +2,7 @@
 
 import React from "react";
 
-import { Plus } from "lucide-react";
+import { Pencil, Plus, Trash } from "lucide-react";
 
 // components
 import { Separator } from "@/components/ui/separator";
@@ -10,6 +10,16 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import Actiontooltip from "@/components/Actiontooltip/Actiontooltip";
 
 import NoteCard from "@/components/NoteCard/NoteCard";
+import Error from "@/components/Error/Error";
+
+import {
+  Menubar,
+  MenubarContent,
+  MenubarItem,
+  MenubarMenu,
+  MenubarSeparator,
+  MenubarTrigger,
+} from "@/components/ui/menubar";
 
 // modal hook
 import { useModal } from "@/hooks/use-modal-store";
@@ -49,6 +59,10 @@ const Page = () => {
     queryFn: () => axios.get<Note[]>("/api/notes").then((res) => res.data),
   });
 
+  if (NoteError) {
+    return <Error error={NoteError.message} />;
+  }
+
   return (
     <div>
       {/* notes topbar */}
@@ -76,23 +90,47 @@ const Page = () => {
             <ScrollArea className="">
               <div className="flex items-center gap-x-2">
                 {/* note category */}
-                {categories?.map((category) => (
-                  <div
-                    key={category.id}
-                    className="flex items-center px-2 py-0.5 border rounded-full"
-                  >
-                    <span
-                      className="size-2 rounded-full"
-                      style={{ background: category.colorCode }}
-                    ></span>
-                    <span
-                      className="text-sm ml-2"
-                      style={{ color: category.colorCode }}
-                    >
-                      {category.name}
-                    </span>
-                  </div>
-                ))}
+                <Menubar className="border-0">
+                  {categories?.map((category) => (
+                    <MenubarMenu key={category.id}>
+                      <MenubarTrigger>
+                        <div className="flex items-center px-2 py-0.5 border rounded-full">
+                          <span
+                            className="size-2 rounded-full"
+                            style={{ background: category.colorCode }}
+                          ></span>
+                          <span
+                            className="text-sm ml-2"
+                            style={{ color: category.colorCode }}
+                          >
+                            {category.name}
+                          </span>
+                        </div>
+                      </MenubarTrigger>
+                      <MenubarContent className="dark:bg-dark-50 ">
+                        <MenubarItem
+                          onSelect={() => onOpen("EditCategory", { category })}
+                          className="hover:bg-gray-200 dark:hover:bg-dark-20"
+                        >
+                          <div className="flex items-center ">
+                            <Pencil size={16} className="mr-2" /> Edit category
+                          </div>
+                        </MenubarItem>
+                        <MenubarSeparator className="bg-zinc-400 dark:bg-dark-20" />
+                        <MenubarItem
+                          onSelect={() =>
+                            onOpen("DeleteCategory", { category })
+                          }
+                          className="hover:bg-gray-200 dark:hover:bg-dark-20"
+                        >
+                          <div className="flex items-center ">
+                            <Trash size={16} className="mr-2" /> Delete category
+                          </div>
+                        </MenubarItem>
+                      </MenubarContent>
+                    </MenubarMenu>
+                  ))}
+                </Menubar>
 
                 <Actiontooltip
                   align="center"

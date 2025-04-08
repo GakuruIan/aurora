@@ -8,6 +8,8 @@ import CreateNoteCategory from "../modals/create-note-category";
 import EditNote from "../modals/edit-note";
 import DeleteNote from "../modals/delete-note";
 import SearchModal from "@/components/modals/search";
+import EditNoteCategory from "../modals/edit-category";
+import DeleteNoteCategory from "../modals/delete-category";
 
 export const ModalProvider = () => {
   const [isMounted, setIsMounted] = useState(false);
@@ -27,6 +29,8 @@ export const ModalProvider = () => {
       <EditNote />
       <DeleteNote />
       <SearchModal />
+      <EditNoteCategory />
+      <DeleteNoteCategory />
     </>
   );
 };

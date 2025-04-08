@@ -17,7 +17,6 @@ import Image from "next/image";
 
 // brand images
 import google from "@/public/google.png";
-import office from "@/public/office.png";
 
 const Page = () => {
   return (
@@ -57,30 +56,6 @@ const Page = () => {
             <Button variant="link">
               <a href="/api/auth">Link account</a>
             </Button>
-          </CardFooter>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Office 365</CardTitle>
-            <CardDescription>
-              Enhance productivity with office integration.
-            </CardDescription>
-          </CardHeader>
-
-          <CardContent>
-            <div className="mb-2">
-              <Image src={office} alt="brand logo" className="size-10" />
-            </div>
-            <p className="text-sm text-gray-500 dark:text-gray-300">
-              Set up your Office365 integration today! Effortlessly link your
-              account to keep all your files, tasks, and schedules synced across
-              platforms
-            </p>
-          </CardContent>
-
-          <CardFooter>
-            <Button>Link account</Button>
           </CardFooter>
         </Card>
       </div>

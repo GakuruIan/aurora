@@ -2,14 +2,9 @@
 import React from "react";
 
 // icons
-import {
-  Archive,
-  Forward,
-  Trash2,
-  EllipsisVertical,
-  SquarePen,
-} from "lucide-react";
+import { Archive, Forward, Trash2, EllipsisVertical } from "lucide-react";
 
+// components
 import {
   Sidebar,
   SidebarContent,
@@ -37,10 +32,12 @@ import Actiontooltip from "@/components/Actiontooltip/Actiontooltip";
 
 // mail display
 import MailDisplay from "@/components/MailDisplay/MailDisplay";
-
-import { Label } from "@/components/ui/label";
 import Inbox from "@/components/Email/Inbox/inbox";
 import Sent from "@/components/Email/Sent/sent";
+import Compose from "@/components/Email/Compose/compose";
+import Askai from "@/components/Askai/Ask-ai";
+
+import { Label } from "@/components/ui/label";
 
 const Page = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
   return (
@@ -54,7 +51,10 @@ const Page = ({ ...props }: React.ComponentProps<typeof Sidebar>) => {
           <SidebarHeader className=" gap-3.5 border-b p-4 mb-2">
             <div className="flex items-center justify-between">
               <Label>MailBox</Label>
-              <SquarePen size={18} />
+              <div className="flex items-center">
+                <Compose />
+                <Askai />
+              </div>
             </div>
           </SidebarHeader>
           <ScrollArea className="h-[calc(100vh-8.5rem)]">

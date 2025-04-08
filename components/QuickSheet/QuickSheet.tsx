@@ -156,7 +156,6 @@ const ChatSheet = () => {
     form.reset();
   };
 
-  console.log(mutation.data);
   return (
     <Sheet open={isOpen} onOpenChange={closeChat}>
       <SheetContent side="right">
@@ -165,7 +164,7 @@ const ChatSheet = () => {
           Quick chats, smart replies—always here when you need me. Just ask!
         </SheetDescription>
 
-        <div className="py-4 overflow-y-scroll h-[calc(100vh-10rem)] max-h-[calc(100vh-10rem)]">
+        <div className="py-4 overflow-y-scroll h-[calc(100vh-10rem)] max-h-[calc(100vh-10rem)] no-scrollbar">
           <AnimatePresence mode="wait">
             {history.map((message, index) => (
               <motion.div
@@ -190,7 +189,7 @@ const ChatSheet = () => {
                   )}
                 >
                   <div className="flex items-center space-x-2 rtl:space-x-reverse"></div>
-                  <p className="text-sm font-normal py-2.5 text-gray-900 dark:text-white">
+                  <p className="text-sm max-w-[320px] font-normal py-2.5 text-gray-900 dark:text-white">
                     {message.content}
                   </p>
                 </div>

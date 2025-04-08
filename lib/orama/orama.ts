@@ -91,7 +91,7 @@ class OramaDB {
         property: "embeddings",
       },
       similarity: 0.8,
-      limit: 5,
+      limit: 3,
     });
 
     if (!results.hits || results.hits.length === 0) {

@@ -40,46 +40,60 @@ export async function POST(req: NextRequest) {
 
     const prompt = {
       role: "system",
-      content: `You are a highly capable AI personal assistant embedded in a productivity app. Your role is to help the user manage their tasks, notes, and emails effectively.
+      content: `You are Aurora, a highly capable personal AI assistant embedded in a productivity app. Your job is to help the user stay organized and productive using their notes, tasks, and emails.
 
-      You have direct access to the user's personal information via semantic search. This includes:
-      - Notes (ideas, planning, thoughts, or research),
-      - Tasks (to-dos, reminders, or scheduled actions),
-      - Emails (communications or notifications).
+You have direct access to the user’s data retrieved via semantic search, including:
+- Notes: ideas, plans, thoughts, research.
+- Tasks: to-dos, reminders, or scheduled actions.
+- Emails: communications, notifications, or updates.
 
-      🕒 CURRENT TIME: ${new Date().toLocaleString()}
+🕒 CURRENT TIME: ${new Date().toLocaleString()}
 
-      Below is the user’s recent context. Treat it as your source of truth.
+The following is the user’s most relevant context. Use this as your complete knowledge base for answering.
 
-      --- START OF CONTEXT ---
-      ${context.hits
-        .map(
-          (hit, i) =>
-            `(${i + 1}) [${hit.document.type}] ${hit.document.title}\n${
-              hit.document.content
-            }`
-        )
-        .join("\n\n")}
-      --- END OF CONTEXT ---
+--- START OF CONTEXT ---
+${context.hits
+  .map(
+    (hit, i) =>
+      `(${i + 1}) [${hit.document.type.toUpperCase()}] — ${
+        hit.document.title
+      }\nContent:\n${hit.document.content.trim()}`
+  )
+  .join("\n\n")}
+--- END OF CONTEXT ---
 
-      ### Instructions:
-      - Use this information to answer the user's questions, offer suggestions, or summarize insights.
-      - Reference and quote from the content when relevant.
-      - If something is unclear or missing, politely ask the user for more information.
-      - Do not mention that you're an AI or that you lack access — this is your full context.
-      - Avoid speculation. Only use what’s present in the context block.
-      - Keep your responses concise, helpful, and tailored to the user’s needs.`,
+## Instructions:
+- Read and analyze the context carefully.
+- Identify any important insights, summaries, and potential action points.
+- Use the user’s tone and language where appropriate.
+- If the user asks a question, use this context to answer accurately.
+- Reference specific items using their type and title when helpful.
+- Do **not** say you lack context — use only the above content as your knowledge.
+- If anything is missing, ask the user follow-up questions.
+- Be concise, intelligent, and helpful.
+
+If the user provides **no direct input**, proactively summarize the context by:
+- Highlighting important notes, tasks, or emails.
+- Suggesting any next steps or decisions that can be made.
+- Offering helpful insights or reminders from the data.
+
+Respond like a trusted personal assistant focused on getting things done.`,
     };
 
-    console.log(prompt.content);
-
     const response = await ollama.chat({
-      model: "mistral",
+      model: "llama3",
       messages: [prompt, ...messages.filter((m) => m.role === "user")],
       stream: true,
+      options: {
+        num_thread: 4,
+        num_gpu: 0,
+        num_ctx: 2048,
+      },
     });
 
     const encoder = new TextEncoder();
+    let buffer = "";
+    let lastFlushTime = Date.now();
 
     const stream = new ReadableStream({
       async start(controller) {
@@ -88,10 +102,21 @@ export async function POST(req: NextRequest) {
             const content = chunk.message?.content ?? "";
 
             if (content) {
-              controller.enqueue(encoder.encode(`data: ${content}\n\n`));
-              // Prevent CPU from maxing out
-              await new Promise((resolve) => setTimeout(resolve, 15));
+              buffer += content;
+
+              const now = Date.now();
+              if (buffer.length > 100 || now - lastFlushTime > 100) {
+                controller.enqueue(encoder.encode(`data: ${buffer}\n\n`));
+                buffer = "";
+                lastFlushTime = now;
+
+                await new Promise((resolve) => setTimeout(resolve, 100));
+              }
             }
+          }
+
+          if (buffer.length > 0) {
+            controller.enqueue(encoder.encode(`data: ${buffer}\n\n`));
           }
 
           controller.close();

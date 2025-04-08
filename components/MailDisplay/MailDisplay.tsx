@@ -1,10 +1,26 @@
 import React from "react";
 
+// icons
+import { Reply, Forward } from "lucide-react";
+
 // components
+import { Button } from "../ui/button";
 import { ScrollArea } from "../ui/scroll-area";
-import Replybox from "../ReplyBox/Replybox";
+
 import { Avatar, AvatarFallback } from "../ui/avatar";
 import { Separator } from "../ui/separator";
+
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+
+import EmailForm from "@/components/Email/EmailForm/EmailForm";
 
 // react query
 import { useQuery } from "@tanstack/react-query";
@@ -58,7 +74,7 @@ const MailDisplay = () => {
   }
 
   return (
-    <div className="flex flex-col h-[calc(100vh-10rem)] px-1 md:px-2 py-4 w-full">
+    <div className="flex flex-col h-[calc(100vh-8rem)] px-1 md:px-2 py-4 w-full">
       {isLoading ? (
         <>
           <div className="flex items-center justify-center my-auto py-4 w-full">
@@ -101,7 +117,7 @@ const MailDisplay = () => {
               </div>
             </div>
           </header>
-          <ScrollArea className=" flex-1 h-80">
+          <ScrollArea className=" flex-1 h-[30rem] ">
             {emailthread?.messages?.map((message) => (
               <div
                 className="md:px-2 w-full mb-4 max-w-[22rem] md:max-w-[32rem]"
@@ -113,13 +129,14 @@ const MailDisplay = () => {
 
                   {/* timestamp */}
                 </div>
-                <p className="text-sm w-full mb-2">
-                  <div
-                    dangerouslySetInnerHTML={{
-                      __html: PreprocessEmailContent(message?.content || ""),
-                    }}
-                  />
-                </p>
+
+                <div
+                  className="text-sm"
+                  dangerouslySetInnerHTML={{
+                    __html: PreprocessEmailContent(message?.content || ""),
+                  }}
+                />
+
                 <p className=" text-sm dark:text-gray-500 text-gray-400">
                   sent on:{" "}
                   {new Date(Number(message?.internalDate)).toLocaleDateString(
@@ -134,12 +151,42 @@ const MailDisplay = () => {
               </div>
             ))}
           </ScrollArea>
+          <div className="mt-auto">
+            <div className="border dark:border-dark-10 border-gray-300 rounded-md">
+              <div className="p-4">
+                <Drawer>
+                  <DrawerTrigger asChild>
+                    <Button className="mr-4">
+                      <Reply />
+                      Reply
+                    </Button>
+                  </DrawerTrigger>
+
+                  <DrawerContent>
+                    <div className="mx-auto w-full max-w-sm">
+                      <DrawerHeader>
+                        <DrawerTitle>Reply Box</DrawerTitle>
+                        <DrawerDescription>Write your email</DrawerDescription>
+                      </DrawerHeader>
+
+                      <div className="">
+                        <EmailForm to={emailthread?.sender?.email} />
+                      </div>
+
+                      <DrawerFooter></DrawerFooter>
+                    </div>
+                  </DrawerContent>
+                </Drawer>
+
+                <Button>
+                  <Forward />
+                  Forward
+                </Button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
-
-      <div className="mt-auto">
-        <Replybox />
-      </div>
     </div>
   );
 };

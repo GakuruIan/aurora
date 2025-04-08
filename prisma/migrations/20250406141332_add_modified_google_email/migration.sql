@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "GoogleEmail" ALTER COLUMN "address" DROP DEFAULT,
+ALTER COLUMN "name" DROP DEFAULT;

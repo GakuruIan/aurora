@@ -1,7 +1,6 @@
 import {
   House,
   Cable,
-  Bot,
   Inbox,
   ListTodo,
   NotebookText,
@@ -18,11 +17,11 @@ export const Navlinks = {
       url: "/dashboard",
       icon: House,
     },
-    {
-      title: "Agent",
-      url: "/agents",
-      icon: Bot,
-    },
+    // {
+    //   title: "Agent",
+    //   url: "/agents",
+    //   icon: Bot,
+    // },
     {
       title: "Email",
       url: "/emails",
